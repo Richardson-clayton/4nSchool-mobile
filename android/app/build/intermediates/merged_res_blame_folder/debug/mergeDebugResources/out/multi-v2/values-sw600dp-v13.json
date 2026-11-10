@@ -4,7 +4,7 @@
             "outputFile": "com.fournschool.mobile.app-mergeDebugResources-51:/values-sw600dp-v13/values-sw600dp-v13.xml",
             "map": [
                 {
-                    "source": "C:\\Users\\Dep-TI\\.gradle\\caches\\9.4.1\\transforms\\006b535de978b8df82912f273520f678\\transformed\\appcompat-1.7.1\\res\\values-sw600dp-v13\\values-sw600dp-v13.xml",
+                    "source": "C:\\Users\\Dep-TI\\.gradle\\caches\\9.4.1\\transforms\\4a8ab76c974ee9d6e503bbfcee08ec4a\\transformed\\appcompat-1.7.1\\res\\values-sw600dp-v13\\values-sw600dp-v13.xml",
                     "from": {
                         "startLines": "2,3,4,5,6,7,8,9",
                         "startColumns": "4,4,4,4,4,4,4,4",
@@ -14,7 +14,7 @@
                     }
                 },
                 {
-                    "source": "C:\\Users\\Dep-TI\\.gradle\\caches\\9.4.1\\transforms\\c83220f544d9ca9e1ce4e91ef27ab34f\\transformed\\material-1.13.0\\res\\values-sw600dp-v13\\values-sw600dp-v13.xml",
+                    "source": "C:\\Users\\Dep-TI\\.gradle\\caches\\9.4.1\\transforms\\dfac6dc1a7233bb612a601ce4b558ed2\\transformed\\material-1.13.0\\res\\values-sw600dp-v13\\values-sw600dp-v13.xml",
                     "from": {
                         "startLines": "2,3,4,5,6,7,8,10,11,12,13,14",
                         "startColumns": "4,4,4,4,4,4,4,4,4,4,4,4",

@@ -4,41 +4,7 @@
             "outputFile": "com.fournschool.mobile.app-mergeDebugResources-51:/values-cs/values-cs.xml",
             "map": [
                 {
-                    "source": "C:\\Users\\Dep-TI\\.gradle\\caches\\9.4.1\\transforms\\702116fd527c9a130874488e2f328747\\transformed\\core-1.18.0\\res\\values-cs\\values-cs.xml",
-                    "from": {
-                        "startLines": "2,3,4,5,6,7,8,9",
-                        "startColumns": "4,4,4,4,4,4,4,4",
-                        "startOffsets": "55,153,255,356,455,560,667,786",
-                        "endColumns": "97,101,100,98,104,106,118,100",
-                        "endOffsets": "148,250,351,450,555,662,781,882"
-                    },
-                    "to": {
-                        "startLines": "40,41,42,43,44,45,46,156",
-                        "startColumns": "4,4,4,4,4,4,4,4",
-                        "startOffsets": "3509,3607,3709,3810,3909,4014,4121,13361",
-                        "endColumns": "97,101,100,98,104,106,118,100",
-                        "endOffsets": "3602,3704,3805,3904,4009,4116,4235,13457"
-                    }
-                },
-                {
-                    "source": "C:\\Users\\Dep-TI\\.gradle\\caches\\9.4.1\\transforms\\0a23c5b42b8e0d8a598a2747f03071d4\\transformed\\biometric-1.1.0\\res\\values-cs\\values-cs.xml",
-                    "from": {
-                        "startLines": "2,3,4,5,6,7,8,9,10,11,12,13",
-                        "startColumns": "4,4,4,4,4,4,4,4,4,4,4,4",
-                        "startOffsets": "55,161,251,374,518,648,772,906,1037,1135,1270,1407",
-                        "endColumns": "105,89,122,143,129,123,133,130,97,134,136,118",
-                        "endOffsets": "156,246,369,513,643,767,901,1032,1130,1265,1402,1521"
-                    },
-                    "to": {
-                        "startLines": "51,52,56,57,58,59,60,61,62,63,64,65",
-                        "startColumns": "4,4,4,4,4,4,4,4,4,4,4,4",
-                        "startOffsets": "4622,4728,5043,5166,5310,5440,5564,5698,5829,5927,6062,6199",
-                        "endColumns": "105,89,122,143,129,123,133,130,97,134,136,118",
-                        "endOffsets": "4723,4813,5161,5305,5435,5559,5693,5824,5922,6057,6194,6313"
-                    }
-                },
-                {
-                    "source": "C:\\Users\\Dep-TI\\.gradle\\caches\\9.4.1\\transforms\\02c80dc8478c55241bbb5fcc337068d1\\transformed\\react-android-0.88.0-debug\\res\\values-cs\\values-cs.xml",
+                    "source": "C:\\Users\\Dep-TI\\.gradle\\caches\\9.4.1\\transforms\\4f806020ff3de8e2d3c29476b7f1d70b\\transformed\\react-android-0.88.0-debug\\res\\values-cs\\values-cs.xml",
                     "from": {
                         "startLines": "2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26",
                         "startColumns": "4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4",
@@ -55,7 +21,24 @@
                     }
                 },
                 {
-                    "source": "C:\\Users\\Dep-TI\\.gradle\\caches\\9.4.1\\transforms\\c83220f544d9ca9e1ce4e91ef27ab34f\\transformed\\material-1.13.0\\res\\values-cs\\values-cs.xml",
+                    "source": "C:\\Users\\Dep-TI\\.gradle\\caches\\9.4.1\\transforms\\20e6f7dad00168ada9694a6421c4baca\\transformed\\core-1.18.0\\res\\values-cs\\values-cs.xml",
+                    "from": {
+                        "startLines": "2,3,4,5,6,7,8,9",
+                        "startColumns": "4,4,4,4,4,4,4,4",
+                        "startOffsets": "55,153,255,356,455,560,667,786",
+                        "endColumns": "97,101,100,98,104,106,118,100",
+                        "endOffsets": "148,250,351,450,555,662,781,882"
+                    },
+                    "to": {
+                        "startLines": "40,41,42,43,44,45,46,156",
+                        "startColumns": "4,4,4,4,4,4,4,4",
+                        "startOffsets": "3509,3607,3709,3810,3909,4014,4121,13361",
+                        "endColumns": "97,101,100,98,104,106,118,100",
+                        "endOffsets": "3602,3704,3805,3904,4009,4116,4235,13457"
+                    }
+                },
+                {
+                    "source": "C:\\Users\\Dep-TI\\.gradle\\caches\\9.4.1\\transforms\\dfac6dc1a7233bb612a601ce4b558ed2\\transformed\\material-1.13.0\\res\\values-cs\\values-cs.xml",
                     "from": {
                         "startLines": "2,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48,49,50,51,52,53,54,55,56,57,58,59,60,61,62,63,64,65,66,67,68,69,70,71,72,73,74,75,76,77,78,79,80,81,82,83,84,85,86,87",
                         "startColumns": "4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4",
@@ -74,7 +57,24 @@
                     }
                 },
                 {
-                    "source": "C:\\Users\\Dep-TI\\.gradle\\caches\\9.4.1\\transforms\\006b535de978b8df82912f273520f678\\transformed\\appcompat-1.7.1\\res\\values-cs\\values-cs.xml",
+                    "source": "C:\\Users\\Dep-TI\\.gradle\\caches\\9.4.1\\transforms\\69e020d0238c447e6ab77edf4402bcbc\\transformed\\biometric-1.1.0\\res\\values-cs\\values-cs.xml",
+                    "from": {
+                        "startLines": "2,3,4,5,6,7,8,9,10,11,12,13",
+                        "startColumns": "4,4,4,4,4,4,4,4,4,4,4,4",
+                        "startOffsets": "55,161,251,374,518,648,772,906,1037,1135,1270,1407",
+                        "endColumns": "105,89,122,143,129,123,133,130,97,134,136,118",
+                        "endOffsets": "156,246,369,513,643,767,901,1032,1130,1265,1402,1521"
+                    },
+                    "to": {
+                        "startLines": "51,52,56,57,58,59,60,61,62,63,64,65",
+                        "startColumns": "4,4,4,4,4,4,4,4,4,4,4,4",
+                        "startOffsets": "4622,4728,5043,5166,5310,5440,5564,5698,5829,5927,6062,6199",
+                        "endColumns": "105,89,122,143,129,123,133,130,97,134,136,118",
+                        "endOffsets": "4723,4813,5161,5305,5435,5559,5693,5824,5922,6057,6194,6313"
+                    }
+                },
+                {
+                    "source": "C:\\Users\\Dep-TI\\.gradle\\caches\\9.4.1\\transforms\\4a8ab76c974ee9d6e503bbfcee08ec4a\\transformed\\appcompat-1.7.1\\res\\values-cs\\values-cs.xml",
                     "from": {
                         "startLines": "2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29",
                         "startColumns": "4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4",

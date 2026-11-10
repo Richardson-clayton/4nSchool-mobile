@@ -1,33 +1,33 @@
-com.android.ide.common.process.ProcessException: ninja: Entering directory `C:\tmp\cxx\Debug\2r2s945v\x86_64'
+com.android.ide.common.process.ProcessException: ninja: Entering directory `C:\tmp\cxx\Debug\732z5c6t\x86_64'
 [0/2] Re-checking globbed directories...
 
 C++ build system [build] failed while executing:
     @echo off
     "C:\\Users\\Dep-TI\\AppData\\Local\\Android\\Sdk\\cmake\\3.22.1\\bin\\ninja.exe" ^
       -C ^
-      "C:\\tmp\\cxx\\Debug\\2r2s945v\\x86_64" ^
+      "C:\\tmp\\cxx\\Debug\\732z5c6t\\x86_64" ^
       appmodules ^
       react_codegen_rngesturehandler_codegen ^
       react_codegen_rnscreens ^
       react_codegen_rnsvg ^
       react_codegen_safeareacontext
-  from C:\dev\4nSchool\apps\mobile\android\app
-ninja: error: Stat(rngesturehandler_codegen_autolinked_build/CMakeFiles/react_codegen_rngesturehandler_codegen.dir/C_/dev/4nSchool/apps/mobile/node_modules/react-native-gesture-handler/shared/shadowNodes/react/renderer/components/rngesturehandler_codegen/RNGestureHandlerDetectorShadowNode.cpp.o): Filename longer than 260 characters
-com.android.ide.common.process.ProcessException: ninja: Entering directory `C:\tmp\cxx\Debug\2r2s945v\x86_64'
+  from C:\dev\mobile\android\app
+ninja: error: Stat(rngesturehandler_codegen_autolinked_build/CMakeFiles/react_codegen_rngesturehandler_codegen.dir/C_/dev/mobile/node_modules/react-native-gesture-handler/shared/shadowNodes/react/renderer/components/rngesturehandler_codegen/RNGestureHandlerDetectorShadowNode.cpp.o): Filename longer than 260 characters
+com.android.ide.common.process.ProcessException: ninja: Entering directory `C:\tmp\cxx\Debug\732z5c6t\x86_64'
 [0/2] Re-checking globbed directories...
 
 C++ build system [build] failed while executing:
     @echo off
     "C:\\Users\\Dep-TI\\AppData\\Local\\Android\\Sdk\\cmake\\3.22.1\\bin\\ninja.exe" ^
       -C ^
-      "C:\\tmp\\cxx\\Debug\\2r2s945v\\x86_64" ^
+      "C:\\tmp\\cxx\\Debug\\732z5c6t\\x86_64" ^
       appmodules ^
       react_codegen_rngesturehandler_codegen ^
       react_codegen_rnscreens ^
       react_codegen_rnsvg ^
       react_codegen_safeareacontext
-  from C:\dev\4nSchool\apps\mobile\android\app
-ninja: error: Stat(rngesturehandler_codegen_autolinked_build/CMakeFiles/react_codegen_rngesturehandler_codegen.dir/C_/dev/4nSchool/apps/mobile/node_modules/react-native-gesture-handler/shared/shadowNodes/react/renderer/components/rngesturehandler_codegen/RNGestureHandlerDetectorShadowNode.cpp.o): Filename longer than 260 characters
+  from C:\dev\mobile\android\app
+ninja: error: Stat(rngesturehandler_codegen_autolinked_build/CMakeFiles/react_codegen_rngesturehandler_codegen.dir/C_/dev/mobile/node_modules/react-native-gesture-handler/shared/shadowNodes/react/renderer/components/rngesturehandler_codegen/RNGestureHandlerDetectorShadowNode.cpp.o): Filename longer than 260 characters
 	at com.android.build.gradle.internal.cxx.process.ExecuteProcessKt.execute(ExecuteProcess.kt:241)
 	at com.android.build.gradle.internal.cxx.process.ExecuteProcessKt$executeProcess$1.invoke(ExecuteProcess.kt:95)
 	at com.android.build.gradle.internal.cxx.process.ExecuteProcessKt$executeProcess$1.invoke(ExecuteProcess.kt:93)

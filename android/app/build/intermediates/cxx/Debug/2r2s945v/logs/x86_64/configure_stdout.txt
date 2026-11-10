@@ -1,3 +1,0 @@
--- Configuring done
--- Generating done
--- Build files have been written to: C:/tmp/cxx/Debug/2r2s945v/x86_64

@@ -1,0 +1,87 @@
+[
+{
+  "message": "Start JSON generation. Platform version: 24 min SDK version: x86_64",
+  "file": "C:\\dev\\mobile\\node_modules\\react-native\\ReactAndroid\\cmake-utils\\default-app-setup\\CMakeLists.txt",
+  "tag": "debug|x86_64"
+},
+{
+  "message": "rebuilding JSON C:\\tmp\\cxx\\Debug\\732z5c6t\\x86_64\\android_gradle_build.json due to:",
+  "file": "C:\\dev\\mobile\\node_modules\\react-native\\ReactAndroid\\cmake-utils\\default-app-setup\\CMakeLists.txt",
+  "tag": "debug|x86_64"
+},
+{
+  "message": "- a file changed",
+  "file": "C:\\dev\\mobile\\node_modules\\react-native\\ReactAndroid\\cmake-utils\\default-app-setup\\CMakeLists.txt",
+  "tag": "debug|x86_64"
+},
+{
+  "message": "  - C:\\dev\\mobile\\node_modules\\react-native-reanimated\\android\\build\\intermediates\\prefab_package_configuration\\prefab_publication.json\\debug (CREATED)",
+  "file": "C:\\dev\\mobile\\node_modules\\react-native\\ReactAndroid\\cmake-utils\\default-app-setup\\CMakeLists.txt",
+  "tag": "debug|x86_64"
+},
+{
+  "message": "  - C:\\dev\\mobile\\node_modules\\react-native-reanimated\\android\\build\\intermediates\\prefab_package_header_only\\prefab_publication.json\\debug (LAST_MODIFIED_CHANGED)",
+  "file": "C:\\dev\\mobile\\node_modules\\react-native\\ReactAndroid\\cmake-utils\\default-app-setup\\CMakeLists.txt",
+  "tag": "debug|x86_64"
+},
+{
+  "message": "  - C:\\dev\\mobile\\node_modules\\react-native-worklets\\android\\build\\intermediates\\prefab_package_configuration\\prefab_publication.json\\debug (LAST_MODIFIED_CHANGED)",
+  "file": "C:\\dev\\mobile\\node_modules\\react-native\\ReactAndroid\\cmake-utils\\default-app-setup\\CMakeLists.txt",
+  "tag": "debug|x86_64"
+},
+{
+  "message": "  - C:\\dev\\mobile\\node_modules\\react-native-worklets\\android\\build\\intermediates\\prefab_package_header_only\\prefab_publication.json\\debug (LAST_MODIFIED_CHANGED)",
+  "file": "C:\\dev\\mobile\\node_modules\\react-native\\ReactAndroid\\cmake-utils\\default-app-setup\\CMakeLists.txt",
+  "tag": "debug|x86_64"
+},
+{
+  "message": "@echo off\n\"C:\\\\Program Files\\\\Android\\\\Android Studio\\\\jbr\\\\bin\\\\java\" ^\n  --enable-native-access ^\n  ALL-UNNAMED ^\n  --class-path ^\n  \"C:\\\\Users\\\\Dep-TI\\\\.gradle\\\\caches\\\\modules-2\\\\files-2.1\\\\com.google.prefab\\\\cli\\\\2.1.0\\\\aa32fec809c44fa531f01dcfb739b5b3304d3050\\\\cli-2.1.0-all.jar\" ^\n  com.google.prefab.cli.AppKt ^\n  --build-system ^\n  cmake ^\n  --platform ^\n  android ^\n  --abi ^\n  x86_64 ^\n  --os-version ^\n  24 ^\n  --stl ^\n  c++_shared ^\n  --ndk-version ^\n  27 ^\n  --output ^\n  \"C:\\\\Users\\\\Dep-TI\\\\AppData\\\\Local\\\\Temp\\\\agp-prefab-staging14848077982667218360\\\\staged-cli-output\" ^\n  \"C:\\\\dev\\\\mobile\\\\android\\\\app\\\\build\\\\intermediates\\\\cxx\\\\refs\\\\react-native-reanimated\\\\3k1f4qi3\" ^\n  \"C:\\\\dev\\\\mobile\\\\android\\\\app\\\\build\\\\intermediates\\\\cxx\\\\refs\\\\react-native-worklets\\\\4r3gs372\" ^\n  \"C:\\\\Users\\\\Dep-TI\\\\.gradle\\\\caches\\\\9.4.1\\\\transforms\\\\4f806020ff3de8e2d3c29476b7f1d70b\\\\transformed\\\\react-android-0.88.0-debug\\\\prefab\" ^\n  \"C:\\\\Users\\\\Dep-TI\\\\.gradle\\\\caches\\\\9.4.1\\\\transforms\\\\c55d5111c767af67d25a42cf7eb7300b\\\\transformed\\\\kolibri-android-0.2.4\\\\prefab\" ^\n  \"C:\\\\Users\\\\Dep-TI\\\\.gradle\\\\caches\\\\9.4.1\\\\transforms\\\\c27f5db0d1faa9522af8bd3700143c76\\\\transformed\\\\hermes-android-260318099.0.4-debug\\\\prefab\" ^\n  \"C:\\\\Users\\\\Dep-TI\\\\.gradle\\\\caches\\\\9.4.1\\\\transforms\\\\9a7aaffc445f73bf411ce35589ac8a41\\\\transformed\\\\fbjni-0.7.0\\\\prefab\"\n",
+  "file": "C:\\dev\\mobile\\node_modules\\react-native\\ReactAndroid\\cmake-utils\\default-app-setup\\CMakeLists.txt",
+  "tag": "debug|x86_64"
+},
+{
+  "message": "Received process result: 0",
+  "file": "C:\\dev\\mobile\\node_modules\\react-native\\ReactAndroid\\cmake-utils\\default-app-setup\\CMakeLists.txt",
+  "tag": "debug|x86_64"
+},
+{
+  "message": "keeping json folder \u0027C:\\tmp\\cxx\\Debug\\732z5c6t\\x86_64\u0027 but regenerating project",
+  "file": "C:\\dev\\mobile\\node_modules\\react-native\\ReactAndroid\\cmake-utils\\default-app-setup\\CMakeLists.txt",
+  "tag": "debug|x86_64"
+},
+{
+  "message": "executing cmake @echo off\n\"C:\\\\Users\\\\Dep-TI\\\\AppData\\\\Local\\\\Android\\\\Sdk\\\\cmake\\\\3.22.1\\\\bin\\\\cmake.exe\" ^\n  \"-HC:\\\\dev\\\\mobile\\\\node_modules\\\\react-native\\\\ReactAndroid\\\\cmake-utils\\\\default-app-setup\" ^\n  \"-DCMAKE_SYSTEM_NAME\u003dAndroid\" ^\n  \"-DCMAKE_EXPORT_COMPILE_COMMANDS\u003dON\" ^\n  \"-DCMAKE_SYSTEM_VERSION\u003d24\" ^\n  \"-DANDROID_PLATFORM\u003dandroid-24\" ^\n  \"-DANDROID_ABI\u003dx86_64\" ^\n  \"-DCMAKE_ANDROID_ARCH_ABI\u003dx86_64\" ^\n  \"-DANDROID_NDK\u003dC:\\\\Users\\\\Dep-TI\\\\AppData\\\\Local\\\\Android\\\\Sdk\\\\ndk\\\\27.1.12297006\" ^\n  \"-DCMAKE_ANDROID_NDK\u003dC:\\\\Users\\\\Dep-TI\\\\AppData\\\\Local\\\\Android\\\\Sdk\\\\ndk\\\\27.1.12297006\" ^\n  \"-DCMAKE_TOOLCHAIN_FILE\u003dC:\\\\Users\\\\Dep-TI\\\\AppData\\\\Local\\\\Android\\\\Sdk\\\\ndk\\\\27.1.12297006\\\\build\\\\cmake\\\\android.toolchain.cmake\" ^\n  \"-DCMAKE_MAKE_PROGRAM\u003dC:\\\\Users\\\\Dep-TI\\\\AppData\\\\Local\\\\Android\\\\Sdk\\\\cmake\\\\3.22.1\\\\bin\\\\ninja.exe\" ^\n  \"-DCMAKE_LIBRARY_OUTPUT_DIRECTORY\u003dC:\\\\dev\\\\mobile\\\\android\\\\app\\\\build\\\\intermediates\\\\cxx\\\\Debug\\\\732z5c6t\\\\obj\\\\x86_64\" ^\n  \"-DCMAKE_RUNTIME_OUTPUT_DIRECTORY\u003dC:\\\\dev\\\\mobile\\\\android\\\\app\\\\build\\\\intermediates\\\\cxx\\\\Debug\\\\732z5c6t\\\\obj\\\\x86_64\" ^\n  \"-DCMAKE_BUILD_TYPE\u003dDebug\" ^\n  \"-DCMAKE_FIND_ROOT_PATH\u003dC:\\\\tmp\\\\cxx\\\\Debug\\\\732z5c6t\\\\prefab\\\\x86_64\\\\prefab\" ^\n  \"-BC:\\\\tmp\\\\cxx\\\\Debug\\\\732z5c6t\\\\x86_64\" ^\n  -GNinja ^\n  \"-DCMAKE_OBJECT_PATH_MAX\u003d1024\" ^\n  \"-DPROJECT_BUILD_DIR\u003dC:\\\\dev\\\\mobile\\\\android\\\\app\\\\build\" ^\n  \"-DPROJECT_ROOT_DIR\u003dC:\\\\dev\\\\mobile\\\\android\" ^\n  \"-DREACT_ANDROID_DIR\u003dC:\\\\dev\\\\mobile\\\\node_modules\\\\react-native\\\\ReactAndroid\" ^\n  \"-DANDROID_STL\u003dc++_shared\" ^\n  \"-DANDROID_SUPPORT_FLEXIBLE_PAGE_SIZES\u003dON\"\n",
+  "file": "C:\\dev\\mobile\\node_modules\\react-native\\ReactAndroid\\cmake-utils\\default-app-setup\\CMakeLists.txt",
+  "tag": "debug|x86_64"
+},
+{
+  "message": "@echo off\n\"C:\\\\Users\\\\Dep-TI\\\\AppData\\\\Local\\\\Android\\\\Sdk\\\\cmake\\\\3.22.1\\\\bin\\\\cmake.exe\" ^\n  \"-HC:\\\\dev\\\\mobile\\\\node_modules\\\\react-native\\\\ReactAndroid\\\\cmake-utils\\\\default-app-setup\" ^\n  \"-DCMAKE_SYSTEM_NAME\u003dAndroid\" ^\n  \"-DCMAKE_EXPORT_COMPILE_COMMANDS\u003dON\" ^\n  \"-DCMAKE_SYSTEM_VERSION\u003d24\" ^\n  \"-DANDROID_PLATFORM\u003dandroid-24\" ^\n  \"-DANDROID_ABI\u003dx86_64\" ^\n  \"-DCMAKE_ANDROID_ARCH_ABI\u003dx86_64\" ^\n  \"-DANDROID_NDK\u003dC:\\\\Users\\\\Dep-TI\\\\AppData\\\\Local\\\\Android\\\\Sdk\\\\ndk\\\\27.1.12297006\" ^\n  \"-DCMAKE_ANDROID_NDK\u003dC:\\\\Users\\\\Dep-TI\\\\AppData\\\\Local\\\\Android\\\\Sdk\\\\ndk\\\\27.1.12297006\" ^\n  \"-DCMAKE_TOOLCHAIN_FILE\u003dC:\\\\Users\\\\Dep-TI\\\\AppData\\\\Local\\\\Android\\\\Sdk\\\\ndk\\\\27.1.12297006\\\\build\\\\cmake\\\\android.toolchain.cmake\" ^\n  \"-DCMAKE_MAKE_PROGRAM\u003dC:\\\\Users\\\\Dep-TI\\\\AppData\\\\Local\\\\Android\\\\Sdk\\\\cmake\\\\3.22.1\\\\bin\\\\ninja.exe\" ^\n  \"-DCMAKE_LIBRARY_OUTPUT_DIRECTORY\u003dC:\\\\dev\\\\mobile\\\\android\\\\app\\\\build\\\\intermediates\\\\cxx\\\\Debug\\\\732z5c6t\\\\obj\\\\x86_64\" ^\n  \"-DCMAKE_RUNTIME_OUTPUT_DIRECTORY\u003dC:\\\\dev\\\\mobile\\\\android\\\\app\\\\build\\\\intermediates\\\\cxx\\\\Debug\\\\732z5c6t\\\\obj\\\\x86_64\" ^\n  \"-DCMAKE_BUILD_TYPE\u003dDebug\" ^\n  \"-DCMAKE_FIND_ROOT_PATH\u003dC:\\\\tmp\\\\cxx\\\\Debug\\\\732z5c6t\\\\prefab\\\\x86_64\\\\prefab\" ^\n  \"-BC:\\\\tmp\\\\cxx\\\\Debug\\\\732z5c6t\\\\x86_64\" ^\n  -GNinja ^\n  \"-DCMAKE_OBJECT_PATH_MAX\u003d1024\" ^\n  \"-DPROJECT_BUILD_DIR\u003dC:\\\\dev\\\\mobile\\\\android\\\\app\\\\build\" ^\n  \"-DPROJECT_ROOT_DIR\u003dC:\\\\dev\\\\mobile\\\\android\" ^\n  \"-DREACT_ANDROID_DIR\u003dC:\\\\dev\\\\mobile\\\\node_modules\\\\react-native\\\\ReactAndroid\" ^\n  \"-DANDROID_STL\u003dc++_shared\" ^\n  \"-DANDROID_SUPPORT_FLEXIBLE_PAGE_SIZES\u003dON\"\n",
+  "file": "C:\\dev\\mobile\\node_modules\\react-native\\ReactAndroid\\cmake-utils\\default-app-setup\\CMakeLists.txt",
+  "tag": "debug|x86_64"
+},
+{
+  "message": "Received process result: 0",
+  "file": "C:\\dev\\mobile\\node_modules\\react-native\\ReactAndroid\\cmake-utils\\default-app-setup\\CMakeLists.txt",
+  "tag": "debug|x86_64"
+},
+{
+  "message": "Exiting generation of C:\\tmp\\cxx\\Debug\\732z5c6t\\x86_64\\compile_commands.json.bin normally",
+  "file": "C:\\dev\\mobile\\node_modules\\react-native\\ReactAndroid\\cmake-utils\\default-app-setup\\CMakeLists.txt",
+  "tag": "debug|x86_64"
+},
+{
+  "message": "done executing cmake",
+  "file": "C:\\dev\\mobile\\node_modules\\react-native\\ReactAndroid\\cmake-utils\\default-app-setup\\CMakeLists.txt",
+  "tag": "debug|x86_64"
+},
+{
+  "message": "hard linked C:\\tmp\\cxx\\Debug\\732z5c6t\\x86_64\\compile_commands.json to C:\\tmp\\cxx\\tools\\debug\\x86_64\\compile_commands.json",
+  "file": "C:\\dev\\mobile\\node_modules\\react-native\\ReactAndroid\\cmake-utils\\default-app-setup\\CMakeLists.txt",
+  "tag": "debug|x86_64"
+},
+{
+  "message": "JSON generation completed without problems",
+  "file": "C:\\dev\\mobile\\node_modules\\react-native\\ReactAndroid\\cmake-utils\\default-app-setup\\CMakeLists.txt",
+  "tag": "debug|x86_64"
+}
+]

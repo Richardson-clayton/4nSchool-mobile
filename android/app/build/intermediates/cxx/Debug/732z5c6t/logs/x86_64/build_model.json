@@ -8,9 +8,9 @@
     "triple": "x86_64-linux-android",
     "llvmTriple": "x86_64-none-linux-android"
   },
-  "cxxBuildFolder": "C:\\tmp\\cxx\\Debug\\2r2s945v\\x86_64",
-  "soFolder": "C:\\dev\\4nSchool\\apps\\mobile\\android\\app\\build\\intermediates\\cxx\\Debug\\2r2s945v\\obj\\x86_64",
-  "soRepublishFolder": "C:\\dev\\4nSchool\\apps\\mobile\\android\\app\\build\\intermediates\\cmake\\debug\\obj\\x86_64",
+  "cxxBuildFolder": "C:\\tmp\\cxx\\Debug\\732z5c6t\\x86_64",
+  "soFolder": "C:\\dev\\mobile\\android\\app\\build\\intermediates\\cxx\\Debug\\732z5c6t\\obj\\x86_64",
+  "soRepublishFolder": "C:\\dev\\mobile\\android\\app\\build\\intermediates\\cmake\\debug\\obj\\x86_64",
   "abiPlatformVersion": 24,
   "cmake": {
     "effectiveConfiguration": {
@@ -21,9 +21,9 @@
   "variant": {
     "buildSystemArgumentList": [
       "-DCMAKE_OBJECT_PATH_MAX\u003d1024",
-      "-DPROJECT_BUILD_DIR\u003dC:\\dev\\4nSchool\\apps\\mobile\\android\\app\\build",
-      "-DPROJECT_ROOT_DIR\u003dC:\\dev\\4nSchool\\apps\\mobile\\android",
-      "-DREACT_ANDROID_DIR\u003dC:\\dev\\4nSchool\\node_modules\\react-native\\ReactAndroid",
+      "-DPROJECT_BUILD_DIR\u003dC:\\dev\\mobile\\android\\app\\build",
+      "-DPROJECT_ROOT_DIR\u003dC:\\dev\\mobile\\android",
+      "-DREACT_ANDROID_DIR\u003dC:\\dev\\mobile\\node_modules\\react-native\\ReactAndroid",
       "-DANDROID_STL\u003dc++_shared",
       "-DANDROID_SUPPORT_FLEXIBLE_PAGE_SIZES\u003dON"
     ],
@@ -39,12 +39,12 @@
     "cmakeSettingsConfiguration": "android-gradle-plugin-predetermined-name",
     "module": {
       "cxxFolder": "C:\\tmp\\cxx",
-      "intermediatesBaseFolder": "C:\\dev\\4nSchool\\apps\\mobile\\android\\app\\build\\intermediates",
-      "intermediatesFolder": "C:\\dev\\4nSchool\\apps\\mobile\\android\\app\\build\\intermediates\\cxx",
+      "intermediatesBaseFolder": "C:\\dev\\mobile\\android\\app\\build\\intermediates",
+      "intermediatesFolder": "C:\\dev\\mobile\\android\\app\\build\\intermediates\\cxx",
       "gradleModulePathName": ":app",
-      "moduleRootFolder": "C:\\dev\\4nSchool\\apps\\mobile\\android\\app",
-      "moduleBuildFile": "C:\\dev\\4nSchool\\apps\\mobile\\android\\app\\build.gradle",
-      "makeFile": "C:\\dev\\4nSchool\\node_modules\\react-native\\ReactAndroid\\cmake-utils\\default-app-setup\\CMakeLists.txt",
+      "moduleRootFolder": "C:\\dev\\mobile\\android\\app",
+      "moduleBuildFile": "C:\\dev\\mobile\\android\\app\\build.gradle",
+      "makeFile": "C:\\dev\\mobile\\node_modules\\react-native\\ReactAndroid\\cmake-utils\\default-app-setup\\CMakeLists.txt",
       "buildSystem": "CMAKE",
       "ndkFolder": "C:\\Users\\Dep-TI\\AppData\\Local\\Android\\Sdk\\ndk\\27.1.12297006",
       "ndkFolderBeforeSymLinking": "C:\\Users\\Dep-TI\\AppData\\Local\\Android\\Sdk\\ndk\\27.1.12297006",
@@ -154,7 +154,7 @@
         "SYSTEM": {}
       },
       "project": {
-        "rootBuildGradleFolder": "C:\\dev\\4nSchool\\apps\\mobile\\android",
+        "rootBuildGradleFolder": "C:\\dev\\mobile\\android",
         "sdkFolder": "C:\\Users\\Dep-TI\\AppData\\Local\\Android\\Sdk",
         "isBuildOnlyTargetAbiEnabled": true,
         "ideBuildTargetAbi": "x86_64,arm64-v8a",
@@ -169,16 +169,16 @@
       "C:\\Users\\Dep-TI\\.gradle\\caches\\modules-2\\files-2.1\\com.google.prefab\\cli\\2.1.0\\aa32fec809c44fa531f01dcfb739b5b3304d3050\\cli-2.1.0-all.jar"
     ],
     "prefabPackages": [
-      "C:\\dev\\4nSchool\\node_modules\\react-native-reanimated\\android\\build\\intermediates\\prefab_package\\debug\\prefab",
-      "C:\\dev\\4nSchool\\apps\\mobile\\node_modules\\react-native-worklets\\android\\build\\intermediates\\prefab_package\\debug\\prefab",
-      "C:\\Users\\Dep-TI\\.gradle\\caches\\9.4.1\\transforms\\02c80dc8478c55241bbb5fcc337068d1\\transformed\\react-android-0.88.0-debug\\prefab",
-      "C:\\Users\\Dep-TI\\.gradle\\caches\\9.4.1\\transforms\\774ce6cefba37a55995ae7fa1fc810a1\\transformed\\kolibri-android-0.2.4\\prefab",
-      "C:\\Users\\Dep-TI\\.gradle\\caches\\9.4.1\\transforms\\0cbab063a36c26b564561339905d9b51\\transformed\\hermes-android-260318099.0.4-debug\\prefab",
-      "C:\\Users\\Dep-TI\\.gradle\\caches\\9.4.1\\transforms\\4241a742a9f29e3b722da69766c6c186\\transformed\\fbjni-0.7.0\\prefab"
+      "C:\\dev\\mobile\\node_modules\\react-native-reanimated\\android\\build\\intermediates\\prefab_package\\debug\\prefab",
+      "C:\\dev\\mobile\\node_modules\\react-native-worklets\\android\\build\\intermediates\\prefab_package\\debug\\prefab",
+      "C:\\Users\\Dep-TI\\.gradle\\caches\\9.4.1\\transforms\\4f806020ff3de8e2d3c29476b7f1d70b\\transformed\\react-android-0.88.0-debug\\prefab",
+      "C:\\Users\\Dep-TI\\.gradle\\caches\\9.4.1\\transforms\\c55d5111c767af67d25a42cf7eb7300b\\transformed\\kolibri-android-0.2.4\\prefab",
+      "C:\\Users\\Dep-TI\\.gradle\\caches\\9.4.1\\transforms\\c27f5db0d1faa9522af8bd3700143c76\\transformed\\hermes-android-260318099.0.4-debug\\prefab",
+      "C:\\Users\\Dep-TI\\.gradle\\caches\\9.4.1\\transforms\\9a7aaffc445f73bf411ce35589ac8a41\\transformed\\fbjni-0.7.0\\prefab"
     ],
     "prefabPackageConfigurations": [
-      "C:\\dev\\4nSchool\\node_modules\\react-native-reanimated\\android\\build\\intermediates\\prefab_package_configuration\\debug\\prefabDebugConfigurePackage\\prefab_publication.json",
-      "C:\\dev\\4nSchool\\apps\\mobile\\node_modules\\react-native-worklets\\android\\build\\intermediates\\prefab_package_configuration\\debug\\prefabDebugConfigurePackage\\prefab_publication.json"
+      "C:\\dev\\mobile\\node_modules\\react-native-reanimated\\android\\build\\intermediates\\prefab_package_configuration\\debug\\prefabDebugConfigurePackage\\prefab_publication.json",
+      "C:\\dev\\mobile\\node_modules\\react-native-worklets\\android\\build\\intermediates\\prefab_package_configuration\\debug\\prefabDebugConfigurePackage\\prefab_publication.json"
     ],
     "stlType": "c++_shared",
     "optimizationTag": "Debug"
@@ -186,12 +186,12 @@
   "buildSettings": {
     "environmentVariables": []
   },
-  "prefabFolder": "C:\\tmp\\cxx\\Debug\\2r2s945v\\prefab\\x86_64",
+  "prefabFolder": "C:\\tmp\\cxx\\Debug\\732z5c6t\\prefab\\x86_64",
   "isActiveAbi": true,
-  "fullConfigurationHash": "2r2s945v1o594849336hm3x35694k4l2ys286b4h483xz5m2d276zc4a70",
-  "fullConfigurationHashKey": "# Values used to calculate the hash in this folder name.\n# Should not depend on the absolute path of the project itself.\n#   - AGP: 9.2.1.\n#   - $NDK is the path to NDK 27.1.12297006.\n#   - $PROJECT is the path to the parent folder of the root Gradle build file.\n#   - $ABI is the ABI to be built with. The specific value doesn\u0027t contribute to the value of the hash.\n#   - $HASH is the hash value computed from this text.\n#   - $CMAKE is the path to CMake 3.22.1.\n#   - $NINJA is the path to Ninja.\n-HC:/dev/4nSchool/node_modules/react-native/ReactAndroid/cmake-utils/default-app-setup\n-DCMAKE_SYSTEM_NAME\u003dAndroid\n-DCMAKE_EXPORT_COMPILE_COMMANDS\u003dON\n-DCMAKE_SYSTEM_VERSION\u003d24\n-DANDROID_PLATFORM\u003dandroid-24\n-DANDROID_ABI\u003d$ABI\n-DCMAKE_ANDROID_ARCH_ABI\u003d$ABI\n-DANDROID_NDK\u003d$NDK\n-DCMAKE_ANDROID_NDK\u003d$NDK\n-DCMAKE_TOOLCHAIN_FILE\u003d$NDK/build/cmake/android.toolchain.cmake\n-DCMAKE_MAKE_PROGRAM\u003d$NINJA\n-DCMAKE_LIBRARY_OUTPUT_DIRECTORY\u003d$PROJECT/app/build/intermediates/cxx/Debug/$HASH/obj/$ABI\n-DCMAKE_RUNTIME_OUTPUT_DIRECTORY\u003d$PROJECT/app/build/intermediates/cxx/Debug/$HASH/obj/$ABI\n-DCMAKE_BUILD_TYPE\u003dDebug\n-DCMAKE_FIND_ROOT_PATH\u003dC:/tmp/cxx/Debug/$HASH/prefab/$ABI/prefab\n-BC:/tmp/cxx/Debug/$HASH/$ABI\n-GNinja\n-DCMAKE_OBJECT_PATH_MAX\u003d1024\n-DPROJECT_BUILD_DIR\u003d$PROJECT/app/build\n-DPROJECT_ROOT_DIR\u003d$PROJECT\n-DREACT_ANDROID_DIR\u003dC:/dev/4nSchool/node_modules/react-native/ReactAndroid\n-DANDROID_STL\u003dc++_shared\n-DANDROID_SUPPORT_FLEXIBLE_PAGE_SIZES\u003dON",
+  "fullConfigurationHash": "732z5c6t6e1e6qn3k6n2u6w1f1z192q2m1185h1c4b6j28175471g2s6y3r2m",
+  "fullConfigurationHashKey": "# Values used to calculate the hash in this folder name.\n# Should not depend on the absolute path of the project itself.\n#   - AGP: 9.2.1.\n#   - $NDK is the path to NDK 27.1.12297006.\n#   - $PROJECT is the path to the parent folder of the root Gradle build file.\n#   - $ABI is the ABI to be built with. The specific value doesn\u0027t contribute to the value of the hash.\n#   - $HASH is the hash value computed from this text.\n#   - $CMAKE is the path to CMake 3.22.1.\n#   - $NINJA is the path to Ninja.\n-HC:/dev/mobile/node_modules/react-native/ReactAndroid/cmake-utils/default-app-setup\n-DCMAKE_SYSTEM_NAME\u003dAndroid\n-DCMAKE_EXPORT_COMPILE_COMMANDS\u003dON\n-DCMAKE_SYSTEM_VERSION\u003d24\n-DANDROID_PLATFORM\u003dandroid-24\n-DANDROID_ABI\u003d$ABI\n-DCMAKE_ANDROID_ARCH_ABI\u003d$ABI\n-DANDROID_NDK\u003d$NDK\n-DCMAKE_ANDROID_NDK\u003d$NDK\n-DCMAKE_TOOLCHAIN_FILE\u003d$NDK/build/cmake/android.toolchain.cmake\n-DCMAKE_MAKE_PROGRAM\u003d$NINJA\n-DCMAKE_LIBRARY_OUTPUT_DIRECTORY\u003d$PROJECT/app/build/intermediates/cxx/Debug/$HASH/obj/$ABI\n-DCMAKE_RUNTIME_OUTPUT_DIRECTORY\u003d$PROJECT/app/build/intermediates/cxx/Debug/$HASH/obj/$ABI\n-DCMAKE_BUILD_TYPE\u003dDebug\n-DCMAKE_FIND_ROOT_PATH\u003dC:/tmp/cxx/Debug/$HASH/prefab/$ABI/prefab\n-BC:/tmp/cxx/Debug/$HASH/$ABI\n-GNinja\n-DCMAKE_OBJECT_PATH_MAX\u003d1024\n-DPROJECT_BUILD_DIR\u003d$PROJECT/app/build\n-DPROJECT_ROOT_DIR\u003d$PROJECT\n-DREACT_ANDROID_DIR\u003dC:/dev/mobile/node_modules/react-native/ReactAndroid\n-DANDROID_STL\u003dc++_shared\n-DANDROID_SUPPORT_FLEXIBLE_PAGE_SIZES\u003dON",
   "configurationArguments": [
-    "-HC:\\dev\\4nSchool\\node_modules\\react-native\\ReactAndroid\\cmake-utils\\default-app-setup",
+    "-HC:\\dev\\mobile\\node_modules\\react-native\\ReactAndroid\\cmake-utils\\default-app-setup",
     "-DCMAKE_SYSTEM_NAME\u003dAndroid",
     "-DCMAKE_EXPORT_COMPILE_COMMANDS\u003dON",
     "-DCMAKE_SYSTEM_VERSION\u003d24",
@@ -202,19 +202,19 @@
     "-DCMAKE_ANDROID_NDK\u003dC:\\Users\\Dep-TI\\AppData\\Local\\Android\\Sdk\\ndk\\27.1.12297006",
     "-DCMAKE_TOOLCHAIN_FILE\u003dC:\\Users\\Dep-TI\\AppData\\Local\\Android\\Sdk\\ndk\\27.1.12297006\\build\\cmake\\android.toolchain.cmake",
     "-DCMAKE_MAKE_PROGRAM\u003dC:\\Users\\Dep-TI\\AppData\\Local\\Android\\Sdk\\cmake\\3.22.1\\bin\\ninja.exe",
-    "-DCMAKE_LIBRARY_OUTPUT_DIRECTORY\u003dC:\\dev\\4nSchool\\apps\\mobile\\android\\app\\build\\intermediates\\cxx\\Debug\\2r2s945v\\obj\\x86_64",
-    "-DCMAKE_RUNTIME_OUTPUT_DIRECTORY\u003dC:\\dev\\4nSchool\\apps\\mobile\\android\\app\\build\\intermediates\\cxx\\Debug\\2r2s945v\\obj\\x86_64",
+    "-DCMAKE_LIBRARY_OUTPUT_DIRECTORY\u003dC:\\dev\\mobile\\android\\app\\build\\intermediates\\cxx\\Debug\\732z5c6t\\obj\\x86_64",
+    "-DCMAKE_RUNTIME_OUTPUT_DIRECTORY\u003dC:\\dev\\mobile\\android\\app\\build\\intermediates\\cxx\\Debug\\732z5c6t\\obj\\x86_64",
     "-DCMAKE_BUILD_TYPE\u003dDebug",
-    "-DCMAKE_FIND_ROOT_PATH\u003dC:\\tmp\\cxx\\Debug\\2r2s945v\\prefab\\x86_64\\prefab",
-    "-BC:\\tmp\\cxx\\Debug\\2r2s945v\\x86_64",
+    "-DCMAKE_FIND_ROOT_PATH\u003dC:\\tmp\\cxx\\Debug\\732z5c6t\\prefab\\x86_64\\prefab",
+    "-BC:\\tmp\\cxx\\Debug\\732z5c6t\\x86_64",
     "-GNinja",
     "-DCMAKE_OBJECT_PATH_MAX\u003d1024",
-    "-DPROJECT_BUILD_DIR\u003dC:\\dev\\4nSchool\\apps\\mobile\\android\\app\\build",
-    "-DPROJECT_ROOT_DIR\u003dC:\\dev\\4nSchool\\apps\\mobile\\android",
-    "-DREACT_ANDROID_DIR\u003dC:\\dev\\4nSchool\\node_modules\\react-native\\ReactAndroid",
+    "-DPROJECT_BUILD_DIR\u003dC:\\dev\\mobile\\android\\app\\build",
+    "-DPROJECT_ROOT_DIR\u003dC:\\dev\\mobile\\android",
+    "-DREACT_ANDROID_DIR\u003dC:\\dev\\mobile\\node_modules\\react-native\\ReactAndroid",
     "-DANDROID_STL\u003dc++_shared",
     "-DANDROID_SUPPORT_FLEXIBLE_PAGE_SIZES\u003dON"
   ],
   "stlLibraryFile": "C:\\Users\\Dep-TI\\AppData\\Local\\Android\\Sdk\\ndk\\27.1.12297006\\toolchains\\llvm\\prebuilt\\windows-x86_64\\sysroot\\usr\\lib\\x86_64-linux-android\\libc++_shared.so",
-  "intermediatesParentFolder": "C:\\dev\\4nSchool\\apps\\mobile\\android\\app\\build\\intermediates\\cxx\\Debug\\2r2s945v"
+  "intermediatesParentFolder": "C:\\dev\\mobile\\android\\app\\build\\intermediates\\cxx\\Debug\\732z5c6t"
 }

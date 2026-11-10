@@ -1,6 +1,6 @@
 @echo off
 "C:\\Users\\Dep-TI\\AppData\\Local\\Android\\Sdk\\cmake\\3.22.1\\bin\\cmake.exe" ^
-  "-HC:\\dev\\4nSchool\\node_modules\\react-native\\ReactAndroid\\cmake-utils\\default-app-setup" ^
+  "-HC:\\dev\\mobile\\node_modules\\react-native\\ReactAndroid\\cmake-utils\\default-app-setup" ^
   "-DCMAKE_SYSTEM_NAME=Android" ^
   "-DCMAKE_EXPORT_COMPILE_COMMANDS=ON" ^
   "-DCMAKE_SYSTEM_VERSION=24" ^
@@ -11,15 +11,15 @@
   "-DCMAKE_ANDROID_NDK=C:\\Users\\Dep-TI\\AppData\\Local\\Android\\Sdk\\ndk\\27.1.12297006" ^
   "-DCMAKE_TOOLCHAIN_FILE=C:\\Users\\Dep-TI\\AppData\\Local\\Android\\Sdk\\ndk\\27.1.12297006\\build\\cmake\\android.toolchain.cmake" ^
   "-DCMAKE_MAKE_PROGRAM=C:\\Users\\Dep-TI\\AppData\\Local\\Android\\Sdk\\cmake\\3.22.1\\bin\\ninja.exe" ^
-  "-DCMAKE_LIBRARY_OUTPUT_DIRECTORY=C:\\dev\\4nSchool\\apps\\mobile\\android\\app\\build\\intermediates\\cxx\\Debug\\2r2s945v\\obj\\x86_64" ^
-  "-DCMAKE_RUNTIME_OUTPUT_DIRECTORY=C:\\dev\\4nSchool\\apps\\mobile\\android\\app\\build\\intermediates\\cxx\\Debug\\2r2s945v\\obj\\x86_64" ^
+  "-DCMAKE_LIBRARY_OUTPUT_DIRECTORY=C:\\dev\\mobile\\android\\app\\build\\intermediates\\cxx\\Debug\\732z5c6t\\obj\\x86_64" ^
+  "-DCMAKE_RUNTIME_OUTPUT_DIRECTORY=C:\\dev\\mobile\\android\\app\\build\\intermediates\\cxx\\Debug\\732z5c6t\\obj\\x86_64" ^
   "-DCMAKE_BUILD_TYPE=Debug" ^
-  "-DCMAKE_FIND_ROOT_PATH=C:\\tmp\\cxx\\Debug\\2r2s945v\\prefab\\x86_64\\prefab" ^
-  "-BC:\\tmp\\cxx\\Debug\\2r2s945v\\x86_64" ^
+  "-DCMAKE_FIND_ROOT_PATH=C:\\tmp\\cxx\\Debug\\732z5c6t\\prefab\\x86_64\\prefab" ^
+  "-BC:\\tmp\\cxx\\Debug\\732z5c6t\\x86_64" ^
   -GNinja ^
   "-DCMAKE_OBJECT_PATH_MAX=1024" ^
-  "-DPROJECT_BUILD_DIR=C:\\dev\\4nSchool\\apps\\mobile\\android\\app\\build" ^
-  "-DPROJECT_ROOT_DIR=C:\\dev\\4nSchool\\apps\\mobile\\android" ^
-  "-DREACT_ANDROID_DIR=C:\\dev\\4nSchool\\node_modules\\react-native\\ReactAndroid" ^
+  "-DPROJECT_BUILD_DIR=C:\\dev\\mobile\\android\\app\\build" ^
+  "-DPROJECT_ROOT_DIR=C:\\dev\\mobile\\android" ^
+  "-DREACT_ANDROID_DIR=C:\\dev\\mobile\\node_modules\\react-native\\ReactAndroid" ^
   "-DANDROID_STL=c++_shared" ^
   "-DANDROID_SUPPORT_FLEXIBLE_PAGE_SIZES=ON"

@@ -1,0 +1,27 @@
+{
+  "installationFolder": "C:\\dev\\mobile\\node_modules\\react-native-reanimated\\android\\build\\intermediates\\prefab_package\\debug\\prefab",
+  "gradlePath": ":react-native-reanimated",
+  "packageInfo": {
+    "packageName": "react-native-reanimated",
+    "packageVersion": "4.7.1",
+    "packageSchemaVersion": 2,
+    "packageDependencies": [],
+    "modules": [
+      {
+        "moduleName": "reanimated",
+        "moduleHeaders": "C:\\dev\\mobile\\node_modules\\react-native-reanimated\\android\\build\\prefab-headers\\reanimated",
+        "moduleExportLibraries": [],
+        "abis": [
+          {
+            "abiName": "x86_64",
+            "abiApi": 24,
+            "abiNdkMajor": 27,
+            "abiStl": "c++_shared",
+            "abiLibrary": "C:\\dev\\mobile\\node_modules\\react-native-reanimated\\android\\build\\intermediates\\cxx\\Debug\\735391m4\\obj\\x86_64\\libreanimated.so",
+            "abiAndroidGradleBuildJsonFile": "C:\\dev\\mobile\\node_modules\\react-native-reanimated\\android\\.cxx\\Debug\\735391m4\\x86_64\\android_gradle_build.json"
+          }
+        ]
+      }
+    ]
+  }
+}
