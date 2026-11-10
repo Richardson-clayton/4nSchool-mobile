@@ -1,0 +1,19 @@
+{
+    "logs": [
+        {
+            "outputFile": "com.fournschool.mobile.app-mergeDebugResources-51:/values-ldltr-v21/values-ldltr-v21.xml",
+            "map": [
+                {
+                    "source": "C:\\Users\\Dep-TI\\.gradle\\caches\\9.4.1\\transforms\\006b535de978b8df82912f273520f678\\transformed\\appcompat-1.7.1\\res\\values-ldltr-v21\\values-ldltr-v21.xml",
+                    "from": {
+                        "startLines": "2",
+                        "startColumns": "4",
+                        "startOffsets": "55",
+                        "endColumns": "112",
+                        "endOffsets": "163"
+                    }
+                }
+            ]
+        }
+    ]
+}

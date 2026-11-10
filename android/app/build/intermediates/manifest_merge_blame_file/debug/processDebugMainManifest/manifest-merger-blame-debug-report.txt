@@ -1,0 +1,314 @@
+1<?xml version="1.0" encoding="utf-8"?>
+2<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+3    package="com.fournschool.mobile"
+4    android:versionCode="1"
+5    android:versionName="1.0.0" >
+6
+7    <uses-sdk
+7-->INJECTED
+8        android:minSdkVersion="24"
+8-->INJECTED
+9        android:targetSdkVersion="36" />
+9-->INJECTED
+10
+11    <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
+11-->C:\dev\4nSchool\apps\mobile\android\app\src\main\AndroidManifest.xml:4:3-75
+11-->C:\dev\4nSchool\apps\mobile\android\app\src\main\AndroidManifest.xml:4:20-73
+12    <uses-permission android:name="android.permission.INTERNET" />
+12-->C:\dev\4nSchool\apps\mobile\android\app\src\main\AndroidManifest.xml:2:3-64
+12-->C:\dev\4nSchool\apps\mobile\android\app\src\main\AndroidManifest.xml:2:20-62
+13    <uses-permission
+13-->C:\dev\4nSchool\apps\mobile\android\app\src\main\AndroidManifest.xml:3:3-142
+14        android:name="android.permission.READ_EXTERNAL_STORAGE"
+14-->C:\dev\4nSchool\apps\mobile\android\app\src\main\AndroidManifest.xml:3:20-75
+15        android:maxSdkVersion="32" />
+15-->C:\dev\4nSchool\apps\mobile\android\app\src\main\AndroidManifest.xml:3:76-102
+16    <uses-permission android:name="android.permission.VIBRATE" />
+16-->C:\dev\4nSchool\apps\mobile\android\app\src\main\AndroidManifest.xml:5:3-63
+16-->C:\dev\4nSchool\apps\mobile\android\app\src\main\AndroidManifest.xml:5:20-61
+17    <uses-permission
+17-->C:\dev\4nSchool\apps\mobile\android\app\src\main\AndroidManifest.xml:6:3-143
+18        android:name="android.permission.WRITE_EXTERNAL_STORAGE"
+18-->C:\dev\4nSchool\apps\mobile\android\app\src\main\AndroidManifest.xml:6:20-76
+19        android:maxSdkVersion="32" />
+19-->C:\dev\4nSchool\apps\mobile\android\app\src\main\AndroidManifest.xml:6:77-103
+20
+21    <queries>
+21-->C:\dev\4nSchool\apps\mobile\android\app\src\main\AndroidManifest.xml:7:3-13:13
+22        <intent>
+22-->C:\dev\4nSchool\apps\mobile\android\app\src\main\AndroidManifest.xml:8:5-12:14
+23            <action android:name="android.intent.action.VIEW" />
+23-->C:\dev\4nSchool\apps\mobile\android\app\src\main\AndroidManifest.xml:9:7-58
+23-->C:\dev\4nSchool\apps\mobile\android\app\src\main\AndroidManifest.xml:9:15-56
+24
+25            <category android:name="android.intent.category.BROWSABLE" />
+25-->C:\dev\4nSchool\apps\mobile\android\app\src\main\AndroidManifest.xml:10:7-67
+25-->C:\dev\4nSchool\apps\mobile\android\app\src\main\AndroidManifest.xml:10:17-65
+26
+27            <data android:scheme="https" />
+27-->C:\dev\4nSchool\apps\mobile\android\app\src\main\AndroidManifest.xml:11:7-37
+27-->C:\dev\4nSchool\apps\mobile\android\app\src\main\AndroidManifest.xml:11:13-35
+28        </intent>
+29        <!-- Query open documents -->
+30        <intent>
+30-->[host.exp.exponent:expo.modules.filesystem:58.0.12] C:\Users\Dep-TI\.gradle\caches\9.4.1\transforms\4d3fdc687afcea0d2373f1a68e7a0e7d\transformed\expo.modules.filesystem-58.0.12\AndroidManifest.xml:19:9-21:18
+31            <action android:name="android.intent.action.OPEN_DOCUMENT_TREE" />
+31-->[host.exp.exponent:expo.modules.filesystem:58.0.12] C:\Users\Dep-TI\.gradle\caches\9.4.1\transforms\4d3fdc687afcea0d2373f1a68e7a0e7d\transformed\expo.modules.filesystem-58.0.12\AndroidManifest.xml:20:13-79
+31-->[host.exp.exponent:expo.modules.filesystem:58.0.12] C:\Users\Dep-TI\.gradle\caches\9.4.1\transforms\4d3fdc687afcea0d2373f1a68e7a0e7d\transformed\expo.modules.filesystem-58.0.12\AndroidManifest.xml:20:21-76
+32        </intent>
+33        <intent>
+33-->[host.exp.exponent:expo.modules.filesystem:58.0.12] C:\Users\Dep-TI\.gradle\caches\9.4.1\transforms\4d3fdc687afcea0d2373f1a68e7a0e7d\transformed\expo.modules.filesystem-58.0.12\AndroidManifest.xml:22:9-28:18
+34
+35            <!-- Required for preview handler checks when targeting API 30+. -->
+36            <action android:name="android.intent.action.VIEW" />
+36-->C:\dev\4nSchool\apps\mobile\android\app\src\main\AndroidManifest.xml:9:7-58
+36-->C:\dev\4nSchool\apps\mobile\android\app\src\main\AndroidManifest.xml:9:15-56
+37
+38            <data android:mimeType="*/*" />
+38-->C:\dev\4nSchool\apps\mobile\android\app\src\main\AndroidManifest.xml:11:7-37
+39        </intent>
+40    </queries>
+41    <!--
+42    On Android 17 (SDK 37) devices, apps that declare this must hold ACCESS_LOCAL_NETWORK
+43    to reach the dev server over the local network. Loopback via `adb reverse` is exempt.
+44    -->
+45    <uses-permission android:name="android.permission.ACCESS_LOCAL_NETWORK" />
+45-->[com.facebook.react:react-android:0.88.0] C:\Users\Dep-TI\.gradle\caches\9.4.1\transforms\02c80dc8478c55241bbb5fcc337068d1\transformed\react-android-0.88.0-debug\AndroidManifest.xml:22:5-79
+45-->[com.facebook.react:react-android:0.88.0] C:\Users\Dep-TI\.gradle\caches\9.4.1\transforms\02c80dc8478c55241bbb5fcc337068d1\transformed\react-android-0.88.0-debug\AndroidManifest.xml:22:22-76
+46    <uses-permission android:name="android.permission.USE_BIOMETRIC" /> <!-- suppress DeprecatedClassUsageInspection -->
+46-->[androidx.biometric:biometric:1.1.0] C:\Users\Dep-TI\.gradle\caches\9.4.1\transforms\0a23c5b42b8e0d8a598a2747f03071d4\transformed\biometric-1.1.0\AndroidManifest.xml:24:5-72
+46-->[androidx.biometric:biometric:1.1.0] C:\Users\Dep-TI\.gradle\caches\9.4.1\transforms\0a23c5b42b8e0d8a598a2747f03071d4\transformed\biometric-1.1.0\AndroidManifest.xml:24:22-69
+47    <uses-permission android:name="android.permission.USE_FINGERPRINT" />
+47-->[androidx.biometric:biometric:1.1.0] C:\Users\Dep-TI\.gradle\caches\9.4.1\transforms\0a23c5b42b8e0d8a598a2747f03071d4\transformed\biometric-1.1.0\AndroidManifest.xml:27:5-74
+47-->[androidx.biometric:biometric:1.1.0] C:\Users\Dep-TI\.gradle\caches\9.4.1\transforms\0a23c5b42b8e0d8a598a2747f03071d4\transformed\biometric-1.1.0\AndroidManifest.xml:27:22-71
+48
+49    <permission
+49-->[androidx.core:core:1.18.0] C:\Users\Dep-TI\.gradle\caches\9.4.1\transforms\702116fd527c9a130874488e2f328747\transformed\core-1.18.0\AndroidManifest.xml:22:5-24:47
+50        android:name="com.fournschool.mobile.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION"
+50-->[androidx.core:core:1.18.0] C:\Users\Dep-TI\.gradle\caches\9.4.1\transforms\702116fd527c9a130874488e2f328747\transformed\core-1.18.0\AndroidManifest.xml:23:9-81
+51        android:protectionLevel="signature" />
+51-->[androidx.core:core:1.18.0] C:\Users\Dep-TI\.gradle\caches\9.4.1\transforms\702116fd527c9a130874488e2f328747\transformed\core-1.18.0\AndroidManifest.xml:24:9-44
+52
+53    <uses-permission android:name="com.fournschool.mobile.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION" />
+53-->[androidx.core:core:1.18.0] C:\Users\Dep-TI\.gradle\caches\9.4.1\transforms\702116fd527c9a130874488e2f328747\transformed\core-1.18.0\AndroidManifest.xml:26:5-97
+53-->[androidx.core:core:1.18.0] C:\Users\Dep-TI\.gradle\caches\9.4.1\transforms\702116fd527c9a130874488e2f328747\transformed\core-1.18.0\AndroidManifest.xml:26:22-94
+54
+55    <application
+55-->C:\dev\4nSchool\apps\mobile\android\app\src\main\AndroidManifest.xml:14:3-31:17
+56        android:name="com.fournschool.mobile.MainApplication"
+56-->C:\dev\4nSchool\apps\mobile\android\app\src\main\AndroidManifest.xml:14:16-47
+57        android:allowBackup="true"
+57-->C:\dev\4nSchool\apps\mobile\android\app\src\main\AndroidManifest.xml:14:162-188
+58        android:appComponentFactory="androidx.core.app.CoreComponentFactory"
+58-->[androidx.core:core:1.18.0] C:\Users\Dep-TI\.gradle\caches\9.4.1\transforms\702116fd527c9a130874488e2f328747\transformed\core-1.18.0\AndroidManifest.xml:28:18-86
+59        android:dataExtractionRules="@xml/secure_store_data_extraction_rules"
+59-->C:\dev\4nSchool\apps\mobile\android\app\src\main\AndroidManifest.xml:14:351-420
+60        android:debuggable="true"
+61        android:enableOnBackInvokedCallback="false"
+61-->C:\dev\4nSchool\apps\mobile\android\app\src\main\AndroidManifest.xml:14:248-291
+62        android:extractNativeLibs="false"
+62-->INJECTED
+63        android:fullBackupContent="@xml/secure_store_backup_rules"
+63-->C:\dev\4nSchool\apps\mobile\android\app\src\main\AndroidManifest.xml:14:292-350
+64        android:icon="@mipmap/ic_launcher"
+64-->C:\dev\4nSchool\apps\mobile\android\app\src\main\AndroidManifest.xml:14:81-115
+65        android:label="@string/app_name"
+65-->C:\dev\4nSchool\apps\mobile\android\app\src\main\AndroidManifest.xml:14:48-80
+66        android:roundIcon="@mipmap/ic_launcher_round"
+66-->C:\dev\4nSchool\apps\mobile\android\app\src\main\AndroidManifest.xml:14:116-161
+67        android:supportsRtl="true"
+67-->C:\dev\4nSchool\apps\mobile\android\app\src\main\AndroidManifest.xml:14:221-247
+68        android:testOnly="true"
+69        android:theme="@style/AppTheme"
+69-->C:\dev\4nSchool\apps\mobile\android\app\src\main\AndroidManifest.xml:14:189-220
+70        android:usesCleartextTraffic="true" >
+70-->C:\dev\4nSchool\apps\mobile\android\app\src\debug\AndroidManifest.xml:6:18-53
+71        <meta-data
+71-->C:\dev\4nSchool\apps\mobile\android\app\src\main\AndroidManifest.xml:15:5-83
+72            android:name="expo.modules.updates.ENABLED"
+72-->C:\dev\4nSchool\apps\mobile\android\app\src\main\AndroidManifest.xml:15:16-59
+73            android:value="false" />
+73-->C:\dev\4nSchool\apps\mobile\android\app\src\main\AndroidManifest.xml:15:60-81
+74        <meta-data
+74-->C:\dev\4nSchool\apps\mobile\android\app\src\main\AndroidManifest.xml:16:5-102
+75            android:name="expo.modules.updates.ENABLE_BSDIFF_PATCH_SUPPORT"
+75-->C:\dev\4nSchool\apps\mobile\android\app\src\main\AndroidManifest.xml:16:16-79
+76            android:value="true" />
+76-->C:\dev\4nSchool\apps\mobile\android\app\src\main\AndroidManifest.xml:16:80-100
+77        <meta-data
+77-->C:\dev\4nSchool\apps\mobile\android\app\src\main\AndroidManifest.xml:17:5-105
+78            android:name="expo.modules.updates.EXPO_UPDATES_CHECK_ON_LAUNCH"
+78-->C:\dev\4nSchool\apps\mobile\android\app\src\main\AndroidManifest.xml:17:16-80
+79            android:value="ALWAYS" />
+79-->C:\dev\4nSchool\apps\mobile\android\app\src\main\AndroidManifest.xml:17:81-103
+80        <meta-data
+80-->C:\dev\4nSchool\apps\mobile\android\app\src\main\AndroidManifest.xml:18:5-99
+81            android:name="expo.modules.updates.EXPO_UPDATES_LAUNCH_WAIT_MS"
+81-->C:\dev\4nSchool\apps\mobile\android\app\src\main\AndroidManifest.xml:18:16-79
+82            android:value="0" />
+82-->C:\dev\4nSchool\apps\mobile\android\app\src\main\AndroidManifest.xml:18:80-97
+83
+84        <activity
+84-->C:\dev\4nSchool\apps\mobile\android\app\src\main\AndroidManifest.xml:19:5-30:16
+85            android:name="com.fournschool.mobile.MainActivity"
+85-->C:\dev\4nSchool\apps\mobile\android\app\src\main\AndroidManifest.xml:19:15-43
+86            android:configChanges="keyboard|keyboardHidden|orientation|screenSize|screenLayout|uiMode|smallestScreenSize|assetsPaths"
+86-->C:\dev\4nSchool\apps\mobile\android\app\src\main\AndroidManifest.xml:19:44-165
+87            android:exported="true"
+87-->C:\dev\4nSchool\apps\mobile\android\app\src\main\AndroidManifest.xml:19:287-310
+88            android:launchMode="singleTask"
+88-->C:\dev\4nSchool\apps\mobile\android\app\src\main\AndroidManifest.xml:19:166-197
+89            android:screenOrientation="portrait"
+89-->C:\dev\4nSchool\apps\mobile\android\app\src\main\AndroidManifest.xml:19:311-347
+90            android:theme="@style/Theme.App.SplashScreen"
+90-->C:\dev\4nSchool\apps\mobile\android\app\src\main\AndroidManifest.xml:19:241-286
+91            android:windowSoftInputMode="adjustResize" >
+91-->C:\dev\4nSchool\apps\mobile\android\app\src\main\AndroidManifest.xml:19:198-240
+92            <intent-filter>
+92-->C:\dev\4nSchool\apps\mobile\android\app\src\main\AndroidManifest.xml:20:7-23:23
+93                <action android:name="android.intent.action.MAIN" />
+93-->C:\dev\4nSchool\apps\mobile\android\app\src\main\AndroidManifest.xml:21:9-60
+93-->C:\dev\4nSchool\apps\mobile\android\app\src\main\AndroidManifest.xml:21:17-58
+94
+95                <category android:name="android.intent.category.LAUNCHER" />
+95-->C:\dev\4nSchool\apps\mobile\android\app\src\main\AndroidManifest.xml:22:9-68
+95-->C:\dev\4nSchool\apps\mobile\android\app\src\main\AndroidManifest.xml:22:19-66
+96            </intent-filter>
+97            <intent-filter>
+97-->C:\dev\4nSchool\apps\mobile\android\app\src\main\AndroidManifest.xml:24:7-29:23
+98                <action android:name="android.intent.action.VIEW" />
+98-->C:\dev\4nSchool\apps\mobile\android\app\src\main\AndroidManifest.xml:9:7-58
+98-->C:\dev\4nSchool\apps\mobile\android\app\src\main\AndroidManifest.xml:9:15-56
+99
+100                <category android:name="android.intent.category.DEFAULT" />
+100-->C:\dev\4nSchool\apps\mobile\android\app\src\main\AndroidManifest.xml:26:9-67
+100-->C:\dev\4nSchool\apps\mobile\android\app\src\main\AndroidManifest.xml:26:19-65
+101                <category android:name="android.intent.category.BROWSABLE" />
+101-->C:\dev\4nSchool\apps\mobile\android\app\src\main\AndroidManifest.xml:10:7-67
+101-->C:\dev\4nSchool\apps\mobile\android\app\src\main\AndroidManifest.xml:10:17-65
+102
+103                <data android:scheme="fournschool" />
+103-->C:\dev\4nSchool\apps\mobile\android\app\src\main\AndroidManifest.xml:11:7-37
+103-->C:\dev\4nSchool\apps\mobile\android\app\src\main\AndroidManifest.xml:11:13-35
+104            </intent-filter>
+105        </activity>
+106
+107        <meta-data
+107-->[:expo-modules-core] C:\dev\4nSchool\node_modules\expo-modules-core\android\build\intermediates\merged_manifest\debug\processDebugManifest\AndroidManifest.xml:9:9-11:89
+108            android:name="org.unimodules.core.AppLoader#react-native-headless"
+108-->[:expo-modules-core] C:\dev\4nSchool\node_modules\expo-modules-core\android\build\intermediates\merged_manifest\debug\processDebugManifest\AndroidManifest.xml:10:13-79
+109            android:value="expo.modules.adapters.react.apploader.RNHeadlessAppLoader" />
+109-->[:expo-modules-core] C:\dev\4nSchool\node_modules\expo-modules-core\android\build\intermediates\merged_manifest\debug\processDebugManifest\AndroidManifest.xml:11:13-86
+110        <meta-data
+110-->[:expo-modules-core] C:\dev\4nSchool\node_modules\expo-modules-core\android\build\intermediates\merged_manifest\debug\processDebugManifest\AndroidManifest.xml:12:9-15:45
+111            android:name="com.facebook.soloader.enabled"
+111-->[:expo-modules-core] C:\dev\4nSchool\node_modules\expo-modules-core\android\build\intermediates\merged_manifest\debug\processDebugManifest\AndroidManifest.xml:13:13-57
+112            android:value="true" />
+112-->[:expo-modules-core] C:\dev\4nSchool\node_modules\expo-modules-core\android\build\intermediates\merged_manifest\debug\processDebugManifest\AndroidManifest.xml:14:13-33
+113
+114        <provider
+114-->[host.exp.exponent:expo.modules.filesystem:58.0.12] C:\Users\Dep-TI\.gradle\caches\9.4.1\transforms\4d3fdc687afcea0d2373f1a68e7a0e7d\transformed\expo.modules.filesystem-58.0.12\AndroidManifest.xml:32:9-41:20
+115            android:name="expo.modules.filesystem.FileSystemFileProvider"
+115-->[host.exp.exponent:expo.modules.filesystem:58.0.12] C:\Users\Dep-TI\.gradle\caches\9.4.1\transforms\4d3fdc687afcea0d2373f1a68e7a0e7d\transformed\expo.modules.filesystem-58.0.12\AndroidManifest.xml:33:13-74
+116            android:authorities="com.fournschool.mobile.FileSystemFileProvider"
+116-->[host.exp.exponent:expo.modules.filesystem:58.0.12] C:\Users\Dep-TI\.gradle\caches\9.4.1\transforms\4d3fdc687afcea0d2373f1a68e7a0e7d\transformed\expo.modules.filesystem-58.0.12\AndroidManifest.xml:34:13-74
+117            android:exported="false"
+117-->[host.exp.exponent:expo.modules.filesystem:58.0.12] C:\Users\Dep-TI\.gradle\caches\9.4.1\transforms\4d3fdc687afcea0d2373f1a68e7a0e7d\transformed\expo.modules.filesystem-58.0.12\AndroidManifest.xml:35:13-37
+118            android:grantUriPermissions="true" >
+118-->[host.exp.exponent:expo.modules.filesystem:58.0.12] C:\Users\Dep-TI\.gradle\caches\9.4.1\transforms\4d3fdc687afcea0d2373f1a68e7a0e7d\transformed\expo.modules.filesystem-58.0.12\AndroidManifest.xml:36:13-47
+119            <meta-data
+119-->[host.exp.exponent:expo.modules.filesystem:58.0.12] C:\Users\Dep-TI\.gradle\caches\9.4.1\transforms\4d3fdc687afcea0d2373f1a68e7a0e7d\transformed\expo.modules.filesystem-58.0.12\AndroidManifest.xml:38:13-40:70
+120                android:name="android.support.FILE_PROVIDER_PATHS"
+120-->[host.exp.exponent:expo.modules.filesystem:58.0.12] C:\Users\Dep-TI\.gradle\caches\9.4.1\transforms\4d3fdc687afcea0d2373f1a68e7a0e7d\transformed\expo.modules.filesystem-58.0.12\AndroidManifest.xml:39:17-67
+121                android:resource="@xml/file_system_provider_paths" />
+121-->[host.exp.exponent:expo.modules.filesystem:58.0.12] C:\Users\Dep-TI\.gradle\caches\9.4.1\transforms\4d3fdc687afcea0d2373f1a68e7a0e7d\transformed\expo.modules.filesystem-58.0.12\AndroidManifest.xml:40:17-67
+122        </provider>
+123
+124        <activity
+124-->[com.facebook.react:react-android:0.88.0] C:\Users\Dep-TI\.gradle\caches\9.4.1\transforms\02c80dc8478c55241bbb5fcc337068d1\transformed\react-android-0.88.0-debug\AndroidManifest.xml:25:9-27:40
+125            android:name="com.facebook.react.devsupport.DevSettingsActivity"
+125-->[com.facebook.react:react-android:0.88.0] C:\Users\Dep-TI\.gradle\caches\9.4.1\transforms\02c80dc8478c55241bbb5fcc337068d1\transformed\react-android-0.88.0-debug\AndroidManifest.xml:26:13-77
+126            android:exported="false" />
+126-->[com.facebook.react:react-android:0.88.0] C:\Users\Dep-TI\.gradle\caches\9.4.1\transforms\02c80dc8478c55241bbb5fcc337068d1\transformed\react-android-0.88.0-debug\AndroidManifest.xml:27:13-37
+127
+128        <uses-library
+128-->[androidx.window:window:1.5.1] C:\Users\Dep-TI\.gradle\caches\9.4.1\transforms\00fd0c0dd890ec3988529c056c7cdb84\transformed\window-1.5.1\AndroidManifest.xml:23:9-25:40
+129            android:name="androidx.window.extensions"
+129-->[androidx.window:window:1.5.1] C:\Users\Dep-TI\.gradle\caches\9.4.1\transforms\00fd0c0dd890ec3988529c056c7cdb84\transformed\window-1.5.1\AndroidManifest.xml:24:13-54
+130            android:required="false" />
+130-->[androidx.window:window:1.5.1] C:\Users\Dep-TI\.gradle\caches\9.4.1\transforms\00fd0c0dd890ec3988529c056c7cdb84\transformed\window-1.5.1\AndroidManifest.xml:25:13-37
+131        <uses-library
+131-->[androidx.window:window:1.5.1] C:\Users\Dep-TI\.gradle\caches\9.4.1\transforms\00fd0c0dd890ec3988529c056c7cdb84\transformed\window-1.5.1\AndroidManifest.xml:26:9-28:40
+132            android:name="androidx.window.sidecar"
+132-->[androidx.window:window:1.5.1] C:\Users\Dep-TI\.gradle\caches\9.4.1\transforms\00fd0c0dd890ec3988529c056c7cdb84\transformed\window-1.5.1\AndroidManifest.xml:27:13-51
+133            android:required="false" />
+133-->[androidx.window:window:1.5.1] C:\Users\Dep-TI\.gradle\caches\9.4.1\transforms\00fd0c0dd890ec3988529c056c7cdb84\transformed\window-1.5.1\AndroidManifest.xml:28:13-37
+134
+135        <provider
+135-->[androidx.emoji2:emoji2:1.3.0] C:\Users\Dep-TI\.gradle\caches\9.4.1\transforms\ba85de79f6893adf08311666fdd4af1a\transformed\emoji2-1.3.0\AndroidManifest.xml:24:9-32:20
+136            android:name="androidx.startup.InitializationProvider"
+136-->[androidx.emoji2:emoji2:1.3.0] C:\Users\Dep-TI\.gradle\caches\9.4.1\transforms\ba85de79f6893adf08311666fdd4af1a\transformed\emoji2-1.3.0\AndroidManifest.xml:25:13-67
+137            android:authorities="com.fournschool.mobile.androidx-startup"
+137-->[androidx.emoji2:emoji2:1.3.0] C:\Users\Dep-TI\.gradle\caches\9.4.1\transforms\ba85de79f6893adf08311666fdd4af1a\transformed\emoji2-1.3.0\AndroidManifest.xml:26:13-68
+138            android:exported="false" >
+138-->[androidx.emoji2:emoji2:1.3.0] C:\Users\Dep-TI\.gradle\caches\9.4.1\transforms\ba85de79f6893adf08311666fdd4af1a\transformed\emoji2-1.3.0\AndroidManifest.xml:27:13-37
+139            <meta-data
+139-->[androidx.emoji2:emoji2:1.3.0] C:\Users\Dep-TI\.gradle\caches\9.4.1\transforms\ba85de79f6893adf08311666fdd4af1a\transformed\emoji2-1.3.0\AndroidManifest.xml:29:13-31:52
+140                android:name="androidx.emoji2.text.EmojiCompatInitializer"
+140-->[androidx.emoji2:emoji2:1.3.0] C:\Users\Dep-TI\.gradle\caches\9.4.1\transforms\ba85de79f6893adf08311666fdd4af1a\transformed\emoji2-1.3.0\AndroidManifest.xml:30:17-75
+141                android:value="androidx.startup" />
+141-->[androidx.emoji2:emoji2:1.3.0] C:\Users\Dep-TI\.gradle\caches\9.4.1\transforms\ba85de79f6893adf08311666fdd4af1a\transformed\emoji2-1.3.0\AndroidManifest.xml:31:17-49
+142            <meta-data
+142-->[androidx.lifecycle:lifecycle-process:2.6.2] C:\Users\Dep-TI\.gradle\caches\9.4.1\transforms\6684e8c804defb8cadc82e6e4d4c110b\transformed\lifecycle-process-2.6.2\AndroidManifest.xml:29:13-31:52
+143                android:name="androidx.lifecycle.ProcessLifecycleInitializer"
+143-->[androidx.lifecycle:lifecycle-process:2.6.2] C:\Users\Dep-TI\.gradle\caches\9.4.1\transforms\6684e8c804defb8cadc82e6e4d4c110b\transformed\lifecycle-process-2.6.2\AndroidManifest.xml:30:17-78
+144                android:value="androidx.startup" />
+144-->[androidx.lifecycle:lifecycle-process:2.6.2] C:\Users\Dep-TI\.gradle\caches\9.4.1\transforms\6684e8c804defb8cadc82e6e4d4c110b\transformed\lifecycle-process-2.6.2\AndroidManifest.xml:31:17-49
+145            <meta-data
+145-->[androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\Dep-TI\.gradle\caches\9.4.1\transforms\c6ce6c6a1ee3b3d062f48337eeb1a947\transformed\profileinstaller-1.3.1\AndroidManifest.xml:29:13-31:52
+146                android:name="androidx.profileinstaller.ProfileInstallerInitializer"
+146-->[androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\Dep-TI\.gradle\caches\9.4.1\transforms\c6ce6c6a1ee3b3d062f48337eeb1a947\transformed\profileinstaller-1.3.1\AndroidManifest.xml:30:17-85
+147                android:value="androidx.startup" />
+147-->[androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\Dep-TI\.gradle\caches\9.4.1\transforms\c6ce6c6a1ee3b3d062f48337eeb1a947\transformed\profileinstaller-1.3.1\AndroidManifest.xml:31:17-49
+148        </provider>
+149
+150        <receiver
+150-->[androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\Dep-TI\.gradle\caches\9.4.1\transforms\c6ce6c6a1ee3b3d062f48337eeb1a947\transformed\profileinstaller-1.3.1\AndroidManifest.xml:34:9-52:20
+151            android:name="androidx.profileinstaller.ProfileInstallReceiver"
+151-->[androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\Dep-TI\.gradle\caches\9.4.1\transforms\c6ce6c6a1ee3b3d062f48337eeb1a947\transformed\profileinstaller-1.3.1\AndroidManifest.xml:35:13-76
+152            android:directBootAware="false"
+152-->[androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\Dep-TI\.gradle\caches\9.4.1\transforms\c6ce6c6a1ee3b3d062f48337eeb1a947\transformed\profileinstaller-1.3.1\AndroidManifest.xml:36:13-44
+153            android:enabled="true"
+153-->[androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\Dep-TI\.gradle\caches\9.4.1\transforms\c6ce6c6a1ee3b3d062f48337eeb1a947\transformed\profileinstaller-1.3.1\AndroidManifest.xml:37:13-35
+154            android:exported="true"
+154-->[androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\Dep-TI\.gradle\caches\9.4.1\transforms\c6ce6c6a1ee3b3d062f48337eeb1a947\transformed\profileinstaller-1.3.1\AndroidManifest.xml:38:13-36
+155            android:permission="android.permission.DUMP" >
+155-->[androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\Dep-TI\.gradle\caches\9.4.1\transforms\c6ce6c6a1ee3b3d062f48337eeb1a947\transformed\profileinstaller-1.3.1\AndroidManifest.xml:39:13-57
+156            <intent-filter>
+156-->[androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\Dep-TI\.gradle\caches\9.4.1\transforms\c6ce6c6a1ee3b3d062f48337eeb1a947\transformed\profileinstaller-1.3.1\AndroidManifest.xml:40:13-42:29
+157                <action android:name="androidx.profileinstaller.action.INSTALL_PROFILE" />
+157-->[androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\Dep-TI\.gradle\caches\9.4.1\transforms\c6ce6c6a1ee3b3d062f48337eeb1a947\transformed\profileinstaller-1.3.1\AndroidManifest.xml:41:17-91
+157-->[androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\Dep-TI\.gradle\caches\9.4.1\transforms\c6ce6c6a1ee3b3d062f48337eeb1a947\transformed\profileinstaller-1.3.1\AndroidManifest.xml:41:25-88
+158            </intent-filter>
+159            <intent-filter>
+159-->[androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\Dep-TI\.gradle\caches\9.4.1\transforms\c6ce6c6a1ee3b3d062f48337eeb1a947\transformed\profileinstaller-1.3.1\AndroidManifest.xml:43:13-45:29
+160                <action android:name="androidx.profileinstaller.action.SKIP_FILE" />
+160-->[androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\Dep-TI\.gradle\caches\9.4.1\transforms\c6ce6c6a1ee3b3d062f48337eeb1a947\transformed\profileinstaller-1.3.1\AndroidManifest.xml:44:17-85
+160-->[androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\Dep-TI\.gradle\caches\9.4.1\transforms\c6ce6c6a1ee3b3d062f48337eeb1a947\transformed\profileinstaller-1.3.1\AndroidManifest.xml:44:25-82
+161            </intent-filter>
+162            <intent-filter>
+162-->[androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\Dep-TI\.gradle\caches\9.4.1\transforms\c6ce6c6a1ee3b3d062f48337eeb1a947\transformed\profileinstaller-1.3.1\AndroidManifest.xml:46:13-48:29
+163                <action android:name="androidx.profileinstaller.action.SAVE_PROFILE" />
+163-->[androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\Dep-TI\.gradle\caches\9.4.1\transforms\c6ce6c6a1ee3b3d062f48337eeb1a947\transformed\profileinstaller-1.3.1\AndroidManifest.xml:47:17-88
+163-->[androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\Dep-TI\.gradle\caches\9.4.1\transforms\c6ce6c6a1ee3b3d062f48337eeb1a947\transformed\profileinstaller-1.3.1\AndroidManifest.xml:47:25-85
+164            </intent-filter>
+165            <intent-filter>
+165-->[androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\Dep-TI\.gradle\caches\9.4.1\transforms\c6ce6c6a1ee3b3d062f48337eeb1a947\transformed\profileinstaller-1.3.1\AndroidManifest.xml:49:13-51:29
+166                <action android:name="androidx.profileinstaller.action.BENCHMARK_OPERATION" />
+166-->[androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\Dep-TI\.gradle\caches\9.4.1\transforms\c6ce6c6a1ee3b3d062f48337eeb1a947\transformed\profileinstaller-1.3.1\AndroidManifest.xml:50:17-95
+166-->[androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\Dep-TI\.gradle\caches\9.4.1\transforms\c6ce6c6a1ee3b3d062f48337eeb1a947\transformed\profileinstaller-1.3.1\AndroidManifest.xml:50:25-92
+167            </intent-filter>
+168        </receiver>
+169    </application>
+170
+171</manifest>
