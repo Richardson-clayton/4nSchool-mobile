@@ -1,1 +1,28 @@
-node_modules
+﻿# Dependências e caches
+node_modules/
+.expo/
+.expo-shared/
+dist/
+web-build/
+
+# Arquivos nativos temporários / builds
+*.jks
+*.p8
+*.p12
+*.key
+*.mobileprovision
+*.orig.*
+android/app/build/
+android/.gradle/
+ios/build/
+
+# Variáveis de ambiente locais
+.env
+.env*.local
+
+# Sistema e logs
+npm-debug.*
+yarn-debug.*
+yarn-error.*
+.DS_Store
+Thumbs.db

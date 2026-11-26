@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState, useCallback, useMemo } from 'react'
 import {
   View,
   Text,
@@ -10,28 +10,29 @@ import {
   Modal,
   Platform,
   Alert,
+  RefreshControl,
+  StatusBar,
+  Image,
 } from 'react-native'
+import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { supabase } from '../../src/lib/supabase'
 import { Ionicons } from '@expo/vector-icons'
 import { useRouter } from 'expo-router'
 
-interface Categoria {
+interface ProdutoCardapio {
   id: string
   nome: string
-}
-
-interface Produto {
-  id: string
-  nome: string
-  descricao?: string
+  descricao?: string | null
   preco: number
-  categoria_id?: string
-  foto_url?: string
-  estoque: number
+  estoque: number | null
+  categoria_id: string | null
+  categoriaNome: string
+  foto_url?: string | null
+  ativo: boolean
 }
 
 interface ItemCarrinho {
-  produto: Produto
+  produto: ProdutoCardapio
   quantidade: number
 }
 
@@ -39,150 +40,268 @@ interface Dependente {
   id: string
   nome: string
   saldo: number
+  limite_diario: number
   escola_id?: string
+  bloqueado: boolean
+  tipo: 'aluno' | 'responsavel'
+  alergias?: string | null
+}
+
+const formatarMoeda = (valor: number) =>
+  `R$ ${Number(valor || 0).toFixed(2).replace('.', ',')}`
+
+function obterDataHojeISO(): string {
+  const hoje = new Date()
+  const ano = hoje.getFullYear()
+  const mes = String(hoje.getMonth() + 1).padStart(2, '0')
+  const dia = String(hoje.getDate()).padStart(2, '0')
+  return `${ano}-${mes}-${dia}`
+}
+
+function obterDataAmanhaISO(): string {
+  const amanha = new Date()
+  amanha.setDate(amanha.getDate() + 1)
+  const ano = amanha.getFullYear()
+  const mes = String(amanha.getMonth() + 1).padStart(2, '0')
+  const dia = String(amanha.getDate()).padStart(2, '0')
+  return `${ano}-${mes}-${dia}`
+}
+
+function normalizarDataRetirada(valor: string): string {
+  const limpo = valor.trim()
+  const brMatch = limpo.match(/^(\d{2})\/(\d{2})\/(\d{4})$/)
+  if (brMatch) {
+    return `${brMatch[3]}-${brMatch[2]}-${brMatch[1]}`
+  }
+  return limpo
+}
+
+function formatarDataBR(iso: string): string {
+  if (!iso || !iso.includes('-')) return iso
+  return iso.split('-').reverse().join('/')
 }
 
 export default function PedidosScreen() {
   const router = useRouter()
-  const [categorias, setCategorias] = useState<Categoria[]>([])
-  const [produtos, setProdutos] = useState<Produto[]>([])
-  const [categoriaAtiva, setCategoriaAtiva] = useState<string>('Todos')
+  const insets = useSafeAreaInsets()
+  const dataHoje = useMemo(() => obterDataHojeISO(), [])
+
+  // Cardápio e filtros
+  const [produtos, setProdutos] = useState<ProdutoCardapio[]>([])
+  const [categoriaSelecionada, setCategoriaSelecionada] = useState<string>('Todas')
   const [busca, setBusca] = useState('')
-  const [loading, setLoading] = useState(true)
+  const [imagensComErro, setImagensComErro] = useState<Record<string, boolean>>({})
 
-  // Estado do Carrinho
-  const [carrinho, setCarrinho] = useState<ItemCarrinho[]>([])
-  const [modalCheckoutVisible, setModalCheckoutVisible] = useState(false)
-  const [formaPagamento, setFormaPagamento] = useState<'carteira' | 'pix' | 'credito' | 'debito'>('carteira')
-
-  // Alunos e Saldo
+  // Consumidor e modalidade (Espelho do Portal Web)
   const [dependentes, setDependentes] = useState<Dependente[]>([])
   const [alunoSelecionado, setAlunoSelecionado] = useState<Dependente | null>(null)
-  const [processandoPagamento, setProcessandoPagamento] = useState(false)
+  const [modalidade, setModalidade] = useState<'agora' | 'agendado'>('agora')
+  const [dataRetirada, setDataRetirada] = useState<string>(dataHoje)
 
-  // Modais de Alerta e Sucesso
+  // Regras e restrições do perfil selecionado
+  const [categoriasBloqueadasIds, setCategoriasBloqueadasIds] = useState<Set<string>>(new Set())
+  const [categoriasBloqueadasNomes, setCategoriasBloqueadasNomes] = useState<Set<string>>(new Set())
+  const [restricoesSaude, setRestricoesSaude] = useState<string[]>([])
+  const [carregandoRegras, setCarregandoRegras] = useState(false)
+
+  // Carrinho e Checkout
+  const [carrinho, setCarrinho] = useState<ItemCarrinho[]>([])
+  const [observacao, setObservacao] = useState('')
+  const [modalCheckoutVisible, setModalCheckoutVisible] = useState(false)
+  const [processandoPedido, setProcessandoPedido] = useState(false)
+
+  // Modais de Feedback e Estados de Tela
+  const [loading, setLoading] = useState(true)
+  const [refreshing, setRefreshing] = useState(false)
   const [sucessoModal, setSucessoModal] = useState(false)
   const [modalSaldoInsuficiente, setModalSaldoInsuficiente] = useState(false)
 
-  const fetchData = async () => {
+  const mostrarAviso = (titulo: string, mensagem: string) => {
+    if (Platform.OS === 'web') {
+      alert(`${titulo}: ${mensagem}`)
+    } else {
+      Alert.alert(titulo, mensagem)
+    }
+  }
+
+  // 1. Carrega carteiras (dependentes + titular), produtos e categorias
+  const fetchData = useCallback(async () => {
     try {
-      setLoading(true)
+      const [{ data: prodData }, { data: catData }, { data: authData }] = await Promise.all([
+        supabase.from('produtos').select('*').order('nome', { ascending: true }),
+        supabase.from('categorias').select('id, nome'),
+        supabase.auth.getUser(),
+      ])
 
-      // 1. Busca Categorias
-      try {
-        const { data: catData } = await supabase
-          .from('categorias')
-          .select('*')
-          .order('nome', { ascending: true })
+      const mapaCategorias = new Map<string, string>(
+        (catData || []).map((c: any) => [String(c.id), String(c.nome || 'Geral')])
+      )
 
-        if (catData) setCategorias(catData)
-      } catch (e) {
-        console.log('Erro ao buscar categorias:', e)
-      }
+      const produtosMapeados: ProdutoCardapio[] = (prodData || [])
+        .filter((p: any) => p.ativo !== false && p.disponivel !== false)
+        .map((p: any) => {
+          const catId = p.categoria_id ? String(p.categoria_id) : null
+          const nomeCat =
+            (catId && mapaCategorias.get(catId)) ||
+            (typeof p.categoria === 'string' && p.categoria.trim() ? p.categoria.trim() : 'Geral')
 
-      // 2. Busca Produtos com Realtime
-      try {
-        const { data: prodData } = await supabase
-          .from('produtos')
-          .select('*')
-          .order('nome', { ascending: true })
+          const fotoBruta = p.foto_url ?? p.imagem_url ?? p.foto ?? p.imagem ?? null
 
-        if (prodData) {
-          const formatados: Produto[] = prodData.map((p: any) => ({
+          return {
             id: String(p.id),
-            nome: p.nome || 'Produto',
-            descricao: p.descricao || '',
-            preco: Number(p.preco ?? p.valor ?? 0),
-            categoria_id: p.categoria_id ? String(p.categoria_id) : undefined,
-            foto_url: p.foto_url || p.imagem || null,
-            estoque: p.estoque !== undefined && p.estoque !== null ? Number(p.estoque) : (p.esgotado ? 0 : 10),
-          }))
-          setProdutos(formatados)
-        }
-      } catch (e) {
-        console.log('Erro ao buscar produtos:', e)
-      }
+            nome: String(p.nome || 'Produto'),
+            descricao: p.descricao ? String(p.descricao) : null,
+            preco: Number(p.preco_venda ?? p.preco ?? p.valor ?? 0),
+            estoque:
+              p.estoque !== null && p.estoque !== undefined
+                ? Number(p.estoque)
+                : p.esgotado
+                ? 0
+                : null,
+            categoria_id: catId,
+            categoriaNome: nomeCat,
+            foto_url: typeof fotoBruta === 'string' && fotoBruta.trim() ? fotoBruta.trim() : null,
+            ativo: p.ativo !== false,
+          }
+        })
 
-      // 3. Busca Alunos e Saldo das Carteiras em Tempo Real
-      const { data: { user } } = await supabase.auth.getUser()
+      setProdutos(produtosMapeados)
+
+      const user = authData?.user
       if (user) {
-        let alunosLista: any[] = []
+        const [{ data: perfil }, { data: usuario }] = await Promise.all([
+          supabase.from('perfis').select('id').eq('id', user.id).maybeSingle(),
+          supabase
+            .from('usuarios')
+            .select('id')
+            .or(`id.eq.${user.id},email.eq.${user.email}`)
+            .maybeSingle(),
+        ])
+
+        const responsavelId = usuario?.id || perfil?.id || user.id
+        const mapaAlunos = new Map<string, any>()
 
         const { data: diretos } = await supabase
           .from('alunos')
           .select('*')
-          .eq('responsavel_id', user.id)
+          .eq('responsavel_id', responsavelId)
+          .order('nome', { ascending: true })
 
-        if (diretos && diretos.length > 0) {
-          alunosLista = diretos
-        } else {
-          const { data: vinculos } = await supabase
-            .from('responsaveis_alunos')
-            .select('aluno_id')
-            .eq('responsavel_id', user.id)
+        if (diretos) {
+          diretos.forEach((a: any) => mapaAlunos.set(String(a.id), a))
+        }
 
-          if (vinculos && vinculos.length > 0) {
-            const ids = vinculos.map((v: any) => v.aluno_id)
-            const { data: porIds } = await supabase
-              .from('alunos')
-              .select('*')
-              .in('id', ids)
+        const [vincPlural, vincSingular] = await Promise.allSettled([
+          supabase.from('responsaveis_alunos').select('aluno_id').eq('responsavel_id', responsavelId),
+          supabase.from('responsavel_aluno').select('aluno_id').eq('responsavel_id', responsavelId),
+        ])
 
-            if (porIds) alunosLista = porIds
+        const idsExtras: string[] = []
+        if (vincPlural.status === 'fulfilled' && vincPlural.value.data) {
+          vincPlural.value.data.forEach((v: any) => idsExtras.push(String(v.aluno_id)))
+        }
+        if (vincSingular.status === 'fulfilled' && vincSingular.value.data) {
+          vincSingular.value.data.forEach((v: any) => idsExtras.push(String(v.aluno_id)))
+        }
+
+        const idsNaoCarregados = [...new Set(idsExtras)].filter((id) => !mapaAlunos.has(id))
+        if (idsNaoCarregados.length > 0) {
+          const { data: porIds } = await supabase
+            .from('alunos')
+            .select('*')
+            .in('id', idsNaoCarregados)
+            .order('nome', { ascending: true })
+
+          if (porIds) {
+            porIds.forEach((a: any) => mapaAlunos.set(String(a.id), a))
           }
         }
 
+        const alunosLista = Array.from(mapaAlunos.values())
+
         if (alunosLista.length > 0) {
           const alunoIds = alunosLista.map((a: any) => a.id)
+          const carteirasMap: Record<
+            string,
+            { saldo: number; limite_diario: number; bloqueado: boolean }
+          > = {}
 
-          let carteirasMap: Record<string, number> = {}
-          try {
-            const { data: carteirasData } = await supabase
-              .from('carteiras')
-              .select('*')
-              .in('aluno_id', alunoIds)
+          const { data: carteirasData } = await supabase
+            .from('carteiras')
+            .select('*')
+            .in('aluno_id', alunoIds)
 
-            if (carteirasData) {
-              carteirasData.forEach((c: any) => {
-                const valSaldo = Number(c.saldo ?? c.saldo_dinheiro ?? c.saldo_atual ?? c.valor ?? 0)
-                carteirasMap[String(c.aluno_id)] = valSaldo
-              })
-            }
-          } catch (e) {
-            console.log('Erro ao consultar carteiras:', e)
+          if (carteirasData) {
+            carteirasData.forEach((c: any) => {
+              const valSaldo = Number(
+                c.saldo ?? c.saldo_dinheiro ?? c.saldo_atual ?? c.valor ?? 0
+              )
+              const valLimite = Number(c.limite_diario ?? c.limite ?? 0)
+              const isBloqueado = Boolean(
+                c.bloqueada || c.bloqueado || c.status === 'bloqueado'
+              )
+              carteirasMap[String(c.aluno_id)] = {
+                saldo: valSaldo,
+                limite_diario: valLimite,
+                bloqueado: isBloqueado,
+              }
+            })
           }
 
           const list: Dependente[] = alunosLista.map((a: any) => {
             const aid = String(a.id)
-            const valCarteira = carteirasMap[aid]
-            const saldoFinal = valCarteira !== undefined ? valCarteira : Number(a.saldo ?? a.saldo_atual ?? 0)
+            const infoCarteira = carteirasMap[aid]
+            const saldoFinal =
+              infoCarteira !== undefined
+                ? infoCarteira.saldo
+                : Number(a.saldo ?? a.saldo_atual ?? 0)
+            const limiteFinal =
+              infoCarteira !== undefined
+                ? infoCarteira.limite_diario
+                : Number(a.limite_diario ?? a.limite ?? 0)
+            const isBloqueado = Boolean(
+              infoCarteira?.bloqueado || a.cartao_bloqueado === true || a.bloqueado === true
+            )
+            const ehResponsavel = a.tipo === 'responsavel' || Boolean(a.is_self)
 
             return {
               id: aid,
               nome: a.nome || 'Aluno',
               saldo: saldoFinal,
+              limite_diario: limiteFinal,
               escola_id: a.escola_id,
+              bloqueado: isBloqueado,
+              tipo: ehResponsavel ? 'responsavel' : 'aluno',
+              alergias: a.alergias || a.restricoes_alimentares || null,
             }
           })
 
           setDependentes(list)
-          if (!alunoSelecionado) setAlunoSelecionado(list[0])
+          setAlunoSelecionado((prev) =>
+            prev ? list.find((item) => item.id === prev.id) || list[0] : list[0]
+          )
+        } else {
+          setDependentes([])
+          setAlunoSelecionado(null)
         }
       }
     } catch (err) {
       console.error('Erro ao carregar dados da cantina:', err)
     } finally {
       setLoading(false)
+      setRefreshing(false)
     }
-  }
+  }, [])
 
-  // Escutar alterações de Saldo em Tempo Real
   useEffect(() => {
     fetchData()
 
     const channel = supabase
-      .channel('carteiras_changes')
+      .channel('carteiras_produtos_changes')
       .on('postgres_changes', { event: '*', schema: 'public', table: 'carteiras' }, () => {
+        fetchData()
+      })
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'produtos' }, () => {
         fetchData()
       })
       .subscribe()
@@ -190,14 +309,160 @@ export default function PedidosScreen() {
     return () => {
       supabase.removeChannel(channel)
     }
+  }, [fetchData])
+
+  // 2. Carrega restrições alimentares e categorias bloqueadas do consumidor selecionado (Idêntico ao Portal Web)
+  const carregarRegrasDoAluno = useCallback(async (aluno: Dependente | null) => {
+    if (!aluno) {
+      setCategoriasBloqueadasIds(new Set())
+      setCategoriasBloqueadasNomes(new Set())
+      setRestricoesSaude([])
+      return
+    }
+
+    setCarregandoRegras(true)
+    try {
+      const [{ data: restricoesData }, { data: carteiraData }] = await Promise.all([
+        supabase
+          .from('restricoes_alimentares')
+          .select('id, tipo, descricao, ativo')
+          .eq('aluno_id', aluno.id)
+          .eq('ativo', true),
+        supabase.from('carteiras').select('id').eq('aluno_id', aluno.id).maybeSingle(),
+      ])
+
+      const nomesBloqueados = new Set<string>()
+      const alertasSaude: string[] = []
+
+      if (aluno.alergias) {
+        aluno.alergias
+          .split(',')
+          .map((s) => s.trim().toLowerCase())
+          .filter(Boolean)
+          .forEach((s) => alertasSaude.push(s))
+      }
+
+      ;(restricoesData || []).forEach((item: any) => {
+        const tipo = String(item.tipo || '').trim()
+        const desc = String(item.descricao || '').trim()
+        if (!desc) return
+
+        if (tipo === 'Bloqueio de Categoria') {
+          nomesBloqueados.add(desc.toLowerCase())
+        } else {
+          alertasSaude.push(desc.toLowerCase())
+        }
+      })
+
+      const idsBloqueados = new Set<string>()
+      if (carteiraData?.id) {
+        const { data: catsRestritas } = await supabase
+          .from('restricoes_categorias')
+          .select('categoria_id, permitida')
+          .eq('carteira_id', carteiraData.id)
+
+        ;(catsRestritas || []).forEach((r: any) => {
+          if (r.permitida === false && r.categoria_id) {
+            idsBloqueados.add(String(r.categoria_id))
+          }
+        })
+      }
+
+      setCategoriasBloqueadasIds(idsBloqueados)
+      setCategoriasBloqueadasNomes(nomesBloqueados)
+      setRestricoesSaude([...new Set(alertasSaude)])
+    } catch {
+      setCategoriasBloqueadasIds(new Set())
+      setCategoriasBloqueadasNomes(new Set())
+      setRestricoesSaude([])
+    } finally {
+      setCarregandoRegras(false)
+    }
   }, [])
 
-  const handleAdicionarItem = (produto: Produto) => {
-    if (produto.estoque <= 0) return
+  useEffect(() => {
+    carregarRegrasDoAluno(alunoSelecionado)
+  }, [alunoSelecionado, carregarRegrasDoAluno])
+
+  const onRefresh = () => {
+    setRefreshing(true)
+    fetchData()
+  }
+
+  const categoriasDisponiveis = useMemo(() => {
+    const setCats = new Set<string>(['Todas'])
+    produtos.forEach((p) => {
+      if (p.categoriaNome) setCats.add(p.categoriaNome)
+    })
+    return Array.from(setCats)
+  }, [produtos])
+
+  const verificarCategoriaBloqueada = useCallback(
+    (produto: ProdutoCardapio): boolean => {
+      if (produto.categoria_id && categoriasBloqueadasIds.has(produto.categoria_id)) {
+        return true
+      }
+      if (categoriasBloqueadasNomes.has(produto.categoriaNome.toLowerCase().trim())) {
+        return true
+      }
+      return false
+    },
+    [categoriasBloqueadasIds, categoriasBloqueadasNomes]
+  )
+
+  const verificarConflitoSaude = useCallback(
+    (produto: ProdutoCardapio): boolean => {
+      if (restricoesSaude.length === 0) return false
+      const textoProduto = `${produto.nome} ${produto.descricao || ''}`.toLowerCase()
+      return restricoesSaude.some((rest) => {
+        const palavras = rest.split(/[\s,()/.-]+/).filter((w) => w.length >= 4)
+        return palavras.some((palavra) => textoProduto.includes(palavra))
+      })
+    },
+    [restricoesSaude]
+  )
+
+  const produtosFiltrados = useMemo(() => {
+    const termo = busca.trim().toLowerCase()
+    return produtos.filter((p) => {
+      if (categoriaSelecionada !== 'Todas' && p.categoriaNome !== categoriaSelecionada) {
+        return false
+      }
+      if (
+        termo &&
+        !p.nome.toLowerCase().includes(termo) &&
+        !(p.descricao || '').toLowerCase().includes(termo)
+      ) {
+        return false
+      }
+      return true
+    })
+  }, [produtos, categoriaSelecionada, busca])
+
+  const handleAdicionarItem = (produto: ProdutoCardapio) => {
+    if (verificarCategoriaBloqueada(produto)) {
+      mostrarAviso(
+        'Categoria Bloqueada',
+        `A categoria "${produto.categoriaNome}" está bloqueada para esta carteira.`
+      )
+      return
+    }
+
+    if (produto.estoque !== null && produto.estoque <= 0) {
+      mostrarAviso('Sem Estoque', `O item "${produto.nome}" está indisponível no momento.`)
+      return
+    }
 
     setCarrinho((prev) => {
       const existe = prev.find((i) => i.produto.id === produto.id)
       if (existe) {
+        if (produto.estoque !== null && existe.quantidade >= produto.estoque) {
+          mostrarAviso(
+            'Estoque máximo',
+            `Quantidade máxima disponível em estoque para "${produto.nome}" atingida.`
+          )
+          return prev
+        }
         return prev.map((i) =>
           i.produto.id === produto.id ? { ...i, quantidade: i.quantidade + 1 } : i
         )
@@ -222,117 +487,152 @@ export default function PedidosScreen() {
     0
   )
 
-  // Lógica de Filtragem por Busca e Categoria Corrigida
-  const produtosFiltrados = produtos.filter((p) => {
-    const combinaBusca =
-      p.nome.toLowerCase().includes(busca.toLowerCase()) ||
-      (p.descricao && p.descricao.toLowerCase().includes(busca.toLowerCase()))
-
-    if (categoriaAtiva === 'Todos') return combinaBusca
-
-    // Encontra a categoria correspondente pelo nome na lista vinda do banco
-    const catObjeto = categorias.find((c) => c.nome.toLowerCase() === categoriaAtiva.toLowerCase())
-
-    const combinaCategoria = p.categoria_id
-      ? String(p.categoria_id) === String(catObjeto?.id)
-      : (p as any).categoria?.toLowerCase() === categoriaAtiva.toLowerCase()
-
-    return combinaBusca && combinaCategoria
-  })
-
-  // Finalizar e Enviar em Tempo Real para o Portal Admin
-  const handleFinalizarPagamento = async () => {
+  // 3. Finalização do pedido (100% compatível com o Portal Web, Admin e Totem)
+  const handleFinalizarPedido = async () => {
     if (carrinho.length === 0) return
 
     if (!alunoSelecionado) {
-      const msg = 'Por favor, selecione um aluno para quem é o pedido.'
-      if (Platform.OS === 'web') alert(msg)
-      else Alert.alert('Atenção', msg)
+      mostrarAviso('Atenção', 'Selecione quem vai consumir para realizar o pedido.')
       return
     }
 
-    if (formaPagamento === 'carteira' && alunoSelecionado.saldo < valorTotalCarrinho) {
-      setModalSaldoInsuficiente(true)
+    if (alunoSelecionado.bloqueado) {
+      mostrarAviso(
+        'Carteira Bloqueada',
+        'O consumo desta carteira está bloqueado. Libere-o na aba Dependentes.'
+      )
       return
     }
 
-    setProcessandoPagamento(true)
+    const dataEfetiva = modalidade === 'agora' ? dataHoje : normalizarDataRetirada(dataRetirada)
+    if (modalidade === 'agendado' && (!dataEfetiva || dataEfetiva < dataHoje)) {
+      mostrarAviso('Data Inválida', 'Escolha uma data válida (hoje ou futura) para retirada.')
+      return
+    }
+
+    setProcessandoPedido(true)
 
     try {
-      const { data: { user } } = await supabase.auth.getUser()
+      const { data: carteira } = await supabase
+        .from('carteiras')
+        .select('id, saldo, bloqueada, limite_diario')
+        .eq('aluno_id', alunoSelecionado.id)
+        .maybeSingle()
 
-      // 1. Criar pedido na tabela 'pedidos'
-      const { data: pedidoCriado, error: pErr } = await supabase
+      if (!carteira) {
+        throw new Error('Carteira não encontrada para o perfil selecionado.')
+      }
+
+      if (carteira.bloqueada) {
+        throw new Error('Esta carteira está bloqueada no momento.')
+      }
+
+      const saldoAtual = Number(carteira.saldo || 0)
+      const limiteConfigurado = Number(
+        carteira.limite_diario || alunoSelecionado.limite_diario || 0
+      )
+
+      if (limiteConfigurado > 0 && valorTotalCarrinho > limiteConfigurado) {
+        throw new Error(
+          `O valor do pedido (${formatarMoeda(valorTotalCarrinho)}) excede o limite diário configurado (${formatarMoeda(
+            limiteConfigurado
+          )}).`
+        )
+      }
+
+      if (saldoAtual < valorTotalCarrinho) {
+        setProcessandoPedido(false)
+        setModalSaldoInsuficiente(true)
+        return
+      }
+
+      const novoSaldo = saldoAtual - valorTotalCarrinho
+      const resumoItens = carrinho
+        .map((i) => `${i.quantidade}x ${i.produto.nome}`)
+        .join(', ')
+
+      const obsFinal = [
+        modalidade === 'agendado'
+          ? `AGENDADO (${formatarDataBR(dataEfetiva)})`
+          : 'RETIRADA IMEDIATA',
+        resumoItens,
+        observacao.trim() ? `Obs: ${observacao.trim()}` : '',
+      ]
+        .filter(Boolean)
+        .join(' | ')
+
+      // 1. Debita saldo da carteira
+      const { error: errCarteira } = await supabase
+        .from('carteiras')
+        .update({ saldo: novoSaldo, updated_at: new Date().toISOString() })
+        .eq('id', carteira.id)
+
+      if (errCarteira) throw errCarteira
+
+      await supabase.from('alunos').update({ saldo: novoSaldo }).eq('id', alunoSelecionado.id)
+
+      // 2. Cria pedido (mesmo schema do Portal Web)
+      const { data: pedidoCriado, error: errPedido } = await supabase
         .from('pedidos')
-        .insert({
-          aluno_id: alunoSelecionado.id,
-          responsavel_id: user?.id,
-          valor_total: valorTotalCarrinho,
-          total: valorTotalCarrinho,
-          valor: valorTotalCarrinho,
-          status: 'concluido',
-          forma_pagamento: formaPagamento,
-          tipo_pagamento: formaPagamento,
-          escola_id: alunoSelecionado.escola_id,
-          created_at: new Date().toISOString(),
-        })
+        .insert([
+          {
+            aluno_id: alunoSelecionado.id,
+            valor_total: valorTotalCarrinho,
+            status: 'pago',
+            observacoes: obsFinal,
+          },
+        ])
         .select('id')
-        .single()
+        .maybeSingle()
 
-      if (pErr) console.log('Log de criação do pedido:', pErr)
+      if (errPedido) throw errPedido
 
-      const pedidoId = pedidoCriado?.id
-
-      // 2. Criar itens do pedido
-      if (pedidoId) {
-        const itensPayload = carrinho.map((item) => ({
-          pedido_id: pedidoId,
-          produto_id: item.produto.id,
-          quantidade: item.quantidade,
-          preco_unitario: item.produto.preco,
-        }))
-
-        await supabase.from('itens_pedido').insert(itensPayload)
+      // 3. Registra itens do pedido
+      if (pedidoCriado?.id) {
+        await supabase.from('itens_pedido').insert(
+          carrinho.map((item) => ({
+            pedido_id: pedidoCriado.id,
+            produto_id: item.produto.id,
+            quantidade: item.quantidade,
+            preco_unitario: item.produto.preco,
+            subtotal: item.produto.preco * item.quantidade,
+          }))
+        )
       }
 
-      // 3. Registrar Transação no Extrato Geral
-      try {
-        await supabase.from('transacoes').insert({
+      // 4. Registra no extrato (mesmo schema do Portal Web)
+      await supabase.from('extrato').insert([
+        {
+          carteira_id: carteira.id,
           aluno_id: alunoSelecionado.id,
+          tipo: 'debito',
           valor: valorTotalCarrinho,
-          tipo: 'saida',
-          descricao: `Compra Cantina - ${quantidadeTotal} item(ns)`,
-          created_at: new Date().toISOString(),
-        })
-      } catch (eTrans) {
-        console.log('Log transação:', eTrans)
-      }
+          descricao: `Pedido Online (${
+            modalidade === 'agora' ? 'Hoje' : formatarDataBR(dataEfetiva)
+          }): ${resumoItens}`,
+        },
+      ])
 
-      // 4. Debitar Saldo em 'carteiras' e 'alunos' em Tempo Real
-      if (formaPagamento === 'carteira') {
-        const novoSaldo = Math.max(0, alunoSelecionado.saldo - valorTotalCarrinho)
-
-        await supabase
-          .from('carteiras')
-          .update({ saldo: novoSaldo, updated_at: new Date().toISOString() })
-          .eq('aluno_id', alunoSelecionado.id)
-
-        await supabase
-          .from('alunos')
-          .update({ saldo: novoSaldo })
-          .eq('id', alunoSelecionado.id)
+      // 5. Baixa estoque dos produtos
+      for (const item of carrinho) {
+        if (item.produto.estoque !== null) {
+          const novoEstoque = Math.max(0, item.produto.estoque - item.quantidade)
+          await supabase
+            .from('produtos')
+            .update({ estoque: novoEstoque })
+            .eq('id', item.produto.id)
+        }
       }
 
       setModalCheckoutVisible(false)
-      setSucessoModal(true)
       setCarrinho([])
+      setObservacao('')
+      setSucessoModal(true)
       fetchData()
     } catch (err: any) {
-      const msg = err.message || 'Erro ao registrar compra.'
-      if (Platform.OS === 'web') alert(msg)
-      else Alert.alert('Erro', msg)
+      mostrarAviso('Erro no Pedido', err.message || 'Erro ao finalizar o pedido.')
     } finally {
-      setProcessandoPagamento(false)
+      setProcessandoPedido(false)
     }
   }
 
@@ -342,304 +642,563 @@ export default function PedidosScreen() {
     router.push('/(tabs)/recarregar' as any)
   }
 
-  // Lista de Nomes de Categorias Dinâmica + 'Todos'
-  const listaNomesCategorias = ['Todos', ...Array.from(new Set(categorias.map((c) => c.nome)))]
+  const temRegrasAtivas =
+    alunoSelecionado &&
+    !carregandoRegras &&
+    (alunoSelecionado.bloqueado ||
+      restricoesSaude.length > 0 ||
+      categoriasBloqueadasIds.size > 0 ||
+      categoriasBloqueadasNomes.size > 0)
 
   return (
-    <View style={styles.container}>
-      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 100 }}>
-        {/* Cabeçalho */}
-        <View style={styles.header}>
-          <Text style={styles.title}>Cardápio da Cantina</Text>
-          <Text style={styles.subtitle}>Escolha os produtos e faça pedidos para os alunos</Text>
+    <View style={styles.screen}>
+      <StatusBar barStyle="light-content" />
 
-          <View style={styles.searchWrapper}>
-            <Ionicons name="search-outline" size={18} color="#64748B" />
-            <TextInput
-              style={styles.searchInput}
-              placeholder="Buscar salgados, bebidas, doces..."
-              placeholderTextColor="#94A3B8"
-              value={busca}
-              onChangeText={setBusca}
-            />
-          </View>
+      {/* Cabeçalho Institucional (Espelho do Portal Web) */}
+      <View
+        style={[
+          styles.topHeader,
+          { paddingTop: Math.max(insets.top, Platform.OS === 'web' ? 20 : 40) + 6 },
+        ]}
+      >
+        <View style={styles.topAccentCircle} />
+        <View style={styles.headerBadge}>
+          <Text style={styles.headerBadgeText}>CANTINA ONLINE MENU COFFEE BREAK</Text>
         </View>
+        <Text style={styles.title}>
+          {modalidade === 'agora' ? 'Compra Direta' : 'Pedido Agendado'}
+        </Text>
+        <Text style={styles.subtitle}>
+          {modalidade === 'agora'
+            ? 'Faça o pedido agora para envio imediato à cozinha e retirada no balcão.'
+            : 'Programe o lanche com antecedência para a data desejada.'}
+        </Text>
 
-        {/* Categorias Dinâmicas */}
-        <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.catScrollView}>
-          {listaNomesCategorias.map((cat) => {
-            const isSelected = categoriaAtiva.toLowerCase() === cat.toLowerCase()
-            return (
+        {/* Barra de Busca */}
+        <View style={styles.searchWrapper}>
+          <Ionicons name="search-outline" size={18} color="#64748B" />
+          <TextInput
+            style={styles.searchInput}
+            placeholder="Buscar lanche ou bebida..."
+            placeholderTextColor="#94A3B8"
+            value={busca}
+            onChangeText={setBusca}
+          />
+          {busca.length > 0 && (
+            <TouchableOpacity onPress={() => setBusca('')}>
+              <Ionicons name="close-circle" size={18} color="#94A3B8" />
+            </TouchableOpacity>
+          )}
+        </View>
+      </View>
+
+      {/* Área Principal Branca */}
+      <View style={styles.bodyContainer}>
+        <ScrollView
+          showsVerticalScrollIndicator={false}
+          contentContainerStyle={{
+            paddingTop: 18,
+            paddingHorizontal: 20,
+            paddingBottom: carrinho.length > 0 ? 110 : 32,
+          }}
+          refreshControl={
+            <RefreshControl
+              refreshing={refreshing}
+              onRefresh={onRefresh}
+              colors={['#1E62D0']}
+            />
+          }
+        >
+          {/* BLOCO 1: MODALIDADE & CONSUMIDOR (IDÊNTICO AO PORTAL WEB) */}
+          <View style={styles.configCard}>
+            <Text style={styles.sectionMiniLabel}>MODALIDADE DO PEDIDO</Text>
+            <View style={styles.modalidadeRow}>
               <TouchableOpacity
-                key={cat}
-                style={[styles.catChip, isSelected && styles.catChipSelected]}
-                onPress={() => setCategoriaAtiva(cat)}
+                style={[
+                  styles.modalidadeBtn,
+                  modalidade === 'agora' && styles.modalidadeBtnActive,
+                ]}
+                onPress={() => {
+                  setModalidade('agora')
+                  setDataRetirada(dataHoje)
+                }}
+                activeOpacity={0.85}
               >
-                <Text style={[styles.catChipText, isSelected && styles.catChipTextSelected]}>
-                  {cat}
+                <Ionicons
+                  name="time-outline"
+                  size={15}
+                  color={modalidade === 'agora' ? '#FFFFFF' : '#334155'}
+                />
+                <Text
+                  style={[
+                    styles.modalidadeBtnText,
+                    modalidade === 'agora' && styles.modalidadeBtnTextActive,
+                  ]}
+                >
+                  Comprar Agora (Hoje)
                 </Text>
               </TouchableOpacity>
-            )
-          })}
-        </ScrollView>
 
-        {/* Lista de Produtos */}
-        {loading ? (
-          <ActivityIndicator size="large" color="#2B6CB0" style={{ marginVertical: 40 }} />
-        ) : produtosFiltrados.length > 0 ? (
-          <View style={styles.productList}>
-            {produtosFiltrados.map((item) => {
-              const noCarrinho = carrinho.find((i) => i.produto.id === item.id)
-              const quantidade = noCarrinho?.quantidade || 0
-              const isEsgotado = item.estoque <= 0
-
-              return (
-                <View
-                  key={item.id}
-                  style={[styles.productCard, isEsgotado && styles.productCardEsgotado]}
+              <TouchableOpacity
+                style={[
+                  styles.modalidadeBtn,
+                  modalidade === 'agendado' && styles.modalidadeBtnActive,
+                ]}
+                onPress={() => {
+                  setModalidade('agendado')
+                  if (dataRetirada === dataHoje) {
+                    setDataRetirada(obterDataAmanhaISO())
+                  }
+                }}
+                activeOpacity={0.85}
+              >
+                <Ionicons
+                  name="calendar-outline"
+                  size={15}
+                  color={modalidade === 'agendado' ? '#FFFFFF' : '#334155'}
+                />
+                <Text
+                  style={[
+                    styles.modalidadeBtnText,
+                    modalidade === 'agendado' && styles.modalidadeBtnTextActive,
+                  ]}
                 >
-                  <View style={styles.productInfo}>
-                    <View style={styles.productHeaderRow}>
-                      <Text style={[styles.productName, isEsgotado && styles.productNameEsgotado]}>
-                        {item.nome}
-                      </Text>
-                      {isEsgotado && (
-                        <View style={styles.badgeEsgotado}>
-                          <Text style={styles.badgeEsgotadoText}>ESGOTADO</Text>
-                        </View>
-                      )}
-                    </View>
-
-                    {item.descricao ? (
-                      <Text style={[styles.productDesc, isEsgotado && styles.productDescEsgotado]} numberOfLines={2}>
-                        {item.descricao}
-                      </Text>
-                    ) : null}
-
-                    <Text style={[styles.productPrice, isEsgotado && styles.productPriceEsgotado]}>
-                      R$ {item.preco.toFixed(2).replace('.', ',')}
-                    </Text>
-                  </View>
-
-                  {/* Controle do Botão */}
-                  {isEsgotado ? (
-                    <View style={styles.btnIndisponivel}>
-                      <Text style={styles.btnIndisponivelText}>Indisponível</Text>
-                    </View>
-                  ) : quantidade > 0 ? (
-                    <View style={styles.qtyControls}>
-                      <TouchableOpacity
-                        style={styles.qtyBtn}
-                        onPress={() => handleRemoverItem(item.id)}
-                      >
-                        <Ionicons name="remove" size={16} color="#2563EB" />
-                      </TouchableOpacity>
-
-                      <Text style={styles.qtyText}>{quantidade}</Text>
-
-                      <TouchableOpacity
-                        style={styles.qtyBtn}
-                        onPress={() => handleAdicionarItem(item)}
-                      >
-                        <Ionicons name="add" size={16} color="#2563EB" />
-                      </TouchableOpacity>
-                    </View>
-                  ) : (
-                    <TouchableOpacity
-                      style={styles.addCtaBtn}
-                      onPress={() => handleAdicionarItem(item)}
-                      activeOpacity={0.88}
-                    >
-                      <Ionicons name="add" size={16} color="#FFFFFF" />
-                      <Text style={styles.addCtaText}>Adicionar</Text>
-                    </TouchableOpacity>
-                  )}
-                </View>
-              )
-            })}
-          </View>
-        ) : (
-          <View style={styles.emptyBox}>
-            <Ionicons name="fast-food-outline" size={40} color="#94A3B8" />
-            <Text style={styles.emptyTitle}>Nenhum produto encontrado nesta categoria</Text>
-          </View>
-        )}
-      </ScrollView>
-
-      {/* BARRA FLUTUANTE DO CARRINHO */}
-      {carrinho.length > 0 && (
-        <View style={styles.floatingCartBar}>
-          <View>
-            <Text style={styles.cartBarCount}>
-              {quantidadeTotal} {quantidadeTotal === 1 ? 'item' : 'itens'} no carrinho
-            </Text>
-            <Text style={styles.cartBarTotal}>
-              Total: R$ {valorTotalCarrinho.toFixed(2).replace('.', ',')}
-            </Text>
-          </View>
-
-          <TouchableOpacity
-            style={styles.cartCheckoutBtn}
-            onPress={() => setModalCheckoutVisible(true)}
-            activeOpacity={0.88}
-          >
-            <Ionicons name="cart-outline" size={18} color="#FFFFFF" />
-            <Text style={styles.cartCheckoutBtnText}>VER CARRINHO / PAGAR</Text>
-          </TouchableOpacity>
-        </View>
-      )}
-
-      {/* MODAL 1: CHECKOUT */}
-      <Modal visible={modalCheckoutVisible} animationType="slide" transparent>
-        <View style={styles.modalOverlay}>
-          <View style={styles.modalContent}>
-            <View style={styles.modalHeader}>
-              <Text style={styles.modalTitle}>Resumo do Pedido</Text>
-              <TouchableOpacity onPress={() => setModalCheckoutVisible(false)}>
-                <Ionicons name="close" size={22} color="#64748B" />
+                  Agendar Outro Dia
+                </Text>
               </TouchableOpacity>
             </View>
 
-            {dependentes.length > 0 && (
-              <View style={styles.alunoSelectBox}>
-                <Text style={styles.modalSectionLabel}>COMPRAR PARA QUAL ALUNO?</Text>
-                <View style={styles.alunoChipRow}>
-                  {dependentes.map((dep) => {
-                    const isSel = alunoSelecionado?.id === dep.id
-                    return (
-                      <TouchableOpacity
-                        key={dep.id}
-                        style={[styles.alunoChip, isSel && styles.alunoChipSel]}
-                        onPress={() => setAlunoSelecionado(dep)}
-                      >
-                        <Text style={[styles.alunoChipText, isSel && styles.alunoChipTextSel]}>
-                          {dep.nome.split(' ')[0]} (R$ {dep.saldo.toFixed(2).replace('.', ',')})
-                        </Text>
-                      </TouchableOpacity>
-                    )
-                  })}
+            {/* Seletor de Data quando Agendado */}
+            {modalidade === 'agendado' && (
+              <View style={styles.agendamentoBox}>
+                <Text style={styles.sectionMiniLabel}>DATA DA RETIRADA (DD/MM/AAAA)</Text>
+                <View style={styles.agendamentoQuickRow}>
+                  <TouchableOpacity
+                    style={[
+                      styles.quickDateChip,
+                      dataRetirada === obterDataAmanhaISO() && styles.quickDateChipActive,
+                    ]}
+                    onPress={() => setDataRetirada(obterDataAmanhaISO())}
+                  >
+                    <Text
+                      style={[
+                        styles.quickDateChipText,
+                        dataRetirada === obterDataAmanhaISO() && styles.quickDateChipTextActive,
+                      ]}
+                    >
+                      Amanhã ({formatarDataBR(obterDataAmanhaISO())})
+                    </Text>
+                  </TouchableOpacity>
                 </View>
+                <TextInput
+                  style={styles.dateInput}
+                  value={formatarDataBR(dataRetirada)}
+                  onChangeText={(txt) => setDataRetirada(normalizarDataRetirada(txt))}
+                  placeholder="DD/MM/AAAA"
+                  placeholderTextColor="#94A3B8"
+                />
               </View>
             )}
 
-            <Text style={styles.modalSectionLabel}>ITENS SELECIONADOS</Text>
-            <ScrollView style={{ maxHeight: 140, marginBottom: 12 }}>
-              {carrinho.map((item) => (
-                <View key={item.produto.id} style={styles.cartItemRow}>
-                  <Text style={styles.cartItemName}>
-                    <Text style={{ fontWeight: '800', color: '#2563EB' }}>
-                      {item.quantidade}x{' '}
-                    </Text>
-                    {item.produto.nome}
-                  </Text>
-                  <Text style={styles.cartItemPrice}>
-                    R$ {(item.produto.preco * item.quantidade).toFixed(2).replace('.', ',')}
+            {/* Quem vai consumir */}
+            <Text style={[styles.sectionMiniLabel, { marginTop: 12 }]}>
+              QUEM VAI CONSUMIR (ALUNO OU TITULAR)
+            </Text>
+            {dependentes.length > 0 ? (
+              <ScrollView
+                horizontal
+                showsHorizontalScrollIndicator={false}
+                contentContainerStyle={styles.consumidorRow}
+              >
+                {dependentes.map((dep) => {
+                  const isSel = alunoSelecionado?.id === dep.id
+                  return (
+                    <TouchableOpacity
+                      key={dep.id}
+                      style={[styles.consumidorChip, isSel && styles.consumidorChipSel]}
+                      onPress={() => {
+                        setAlunoSelecionado(dep)
+                        setCarrinho([])
+                      }}
+                      activeOpacity={0.85}
+                    >
+                      <Ionicons
+                        name={dep.tipo === 'responsavel' ? 'wallet' : 'person'}
+                        size={14}
+                        color={isSel ? '#FFFFFF' : '#1E62D0'}
+                      />
+                      <Text
+                        style={[
+                          styles.consumidorChipText,
+                          isSel && styles.consumidorChipTextSel,
+                        ]}
+                      >
+                        {dep.nome.split(' ')[0]} ({formatarMoeda(dep.saldo)})
+                      </Text>
+                    </TouchableOpacity>
+                  )
+                })}
+              </ScrollView>
+            ) : (
+              <Text style={styles.semDependenteText}>
+                Nenhum dependente ou carteira vinculado.
+              </Text>
+            )}
+
+            {/* Alerta de Saldo Zerado com Atalho de Recarga */}
+            {alunoSelecionado && Number(alunoSelecionado.saldo || 0) <= 0 && (
+              <View style={styles.saldoZeroBanner}>
+                <View style={{ flex: 1 }}>
+                  <Text style={styles.saldoZeroText}>
+                    Carteira com saldo R$ 0,00. Adicione créditos via PIX para finalizar pedidos.
                   </Text>
                 </View>
-              ))}
-            </ScrollView>
+                <TouchableOpacity
+                  style={styles.saldoZeroBtn}
+                  onPress={() => router.push('/(tabs)/recarregar' as any)}
+                >
+                  <Text style={styles.saldoZeroBtnText}>RECARREGAR</Text>
+                </TouchableOpacity>
+              </View>
+            )}
 
-            <View style={styles.totalBoxRow}>
-              <Text style={styles.totalBoxLabel}>VALOR TOTAL A PAGAR</Text>
-              <Text style={styles.totalBoxValue}>
-                R$ {valorTotalCarrinho.toFixed(2).replace('.', ',')}
-              </Text>
-            </View>
-
-            <Text style={styles.modalSectionLabel}>FORMA DE PAGAMENTO</Text>
-
-            <TouchableOpacity
-              style={[
-                styles.paymentOptionCard,
-                formaPagamento === 'carteira' && styles.paymentOptionCardSel,
-              ]}
-              onPress={() => setFormaPagamento('carteira')}
-            >
-              <Ionicons name="wallet-outline" size={20} color="#2563EB" />
-              <View style={{ flex: 1 }}>
-                <Text style={styles.paymentOptionTitle}>Saldo em Carteira c/ Facial ou Senha</Text>
-                <Text style={styles.paymentOptionSub}>
-                  Saldo de {alunoSelecionado?.nome.split(' ')[0]}: R${' '}
-                  {alunoSelecionado?.saldo.toFixed(2).replace('.', ',')}
+            {/* Aviso de Regras / Restrições Ativas */}
+            {temRegrasAtivas && (
+              <View style={styles.regrasBanner}>
+                <Ionicons name="shield-checkmark" size={16} color="#B45309" />
+                <Text style={styles.regrasBannerText}>
+                  Regras ativas para {alunoSelecionado.nome.split(' ')[0]}:{' '}
+                  {alunoSelecionado.bloqueado ? '[Consumo Bloqueado] ' : ''}
+                  {categoriasBloqueadasIds.size > 0 || categoriasBloqueadasNomes.size > 0
+                    ? '[Categorias restritas] '
+                    : ''}
+                  {restricoesSaude.length > 0 ? restricoesSaude.join(', ') : ''}
                 </Text>
               </View>
-              {formaPagamento === 'carteira' && (
-                <Ionicons name="checkmark-circle" size={20} color="#2563EB" />
-              )}
-            </TouchableOpacity>
+            )}
+          </View>
 
-            <TouchableOpacity
-              style={[
-                styles.paymentOptionCard,
-                formaPagamento === 'pix' && styles.paymentOptionCardSel,
-              ]}
-              onPress={() => setFormaPagamento('pix')}
-            >
-              <Ionicons name="flash-outline" size={20} color="#16A34A" />
-              <View style={{ flex: 1 }}>
-                <Text style={styles.paymentOptionTitle}>PIX Instantâneo</Text>
-                <Text style={styles.paymentOptionSub}>QR Code com aprovação na hora</Text>
+          {/* BLOCO 2: ABAS DE CATEGORIAS */}
+          <ScrollView
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            style={styles.catScrollView}
+          >
+            {categoriasDisponiveis.map((cat) => {
+              const isSelected = categoriaSelecionada === cat
+              return (
+                <TouchableOpacity
+                  key={cat}
+                  style={[styles.catChip, isSelected && styles.catChipSelected]}
+                  onPress={() => setCategoriaSelecionada(cat)}
+                  activeOpacity={0.85}
+                >
+                  <Text style={[styles.catChipText, isSelected && styles.catChipTextSelected]}>
+                    {cat}
+                  </Text>
+                </TouchableOpacity>
+              )
+            })}
+          </ScrollView>
+
+          {/* BLOCO 3: CARDÁPIO DISPONÍVEL */}
+          {loading ? (
+            <ActivityIndicator size="large" color="#1E62D0" style={{ marginVertical: 48 }} />
+          ) : produtosFiltrados.length > 0 ? (
+            <View style={styles.productList}>
+              {produtosFiltrados.map((item) => {
+                const noCarrinho = carrinho.find((i) => i.produto.id === item.id)
+                const quantidade = noCarrinho?.quantidade || 0
+                const semEstoque = item.estoque !== null && item.estoque <= 0
+                const catBloqueada = verificarCategoriaBloqueada(item)
+                const alertaSaude = verificarConflitoSaude(item)
+                const indisponivel = semEstoque || catBloqueada
+                const mostrarFoto = Boolean(item.foto_url) && !imagensComErro[item.id]
+
+                return (
+                  <View
+                    key={item.id}
+                    style={[
+                      styles.productCard,
+                      indisponivel && styles.productCardEsgotado,
+                      alertaSaude && !indisponivel && styles.productCardAlertaSaude,
+                    ]}
+                  >
+                    {/* Imagem do Produto */}
+                    <View style={styles.productImgBox}>
+                      {mostrarFoto ? (
+                        <Image
+                          source={{ uri: item.foto_url as string }}
+                          style={styles.productImg}
+                          resizeMode="contain"
+                          onError={() =>
+                            setImagensComErro((prev) => ({ ...prev, [item.id]: true }))
+                          }
+                        />
+                      ) : (
+                        <Ionicons name="fast-food-outline" size={26} color="#1E62D0" />
+                      )}
+                    </View>
+
+                    {/* Detalhes do Produto */}
+                    <View style={styles.productInfo}>
+                      <View style={styles.productHeaderRow}>
+                        <Text
+                          style={[styles.productName, indisponivel && styles.productNameEsgotado]}
+                          numberOfLines={1}
+                        >
+                          {item.nome}
+                        </Text>
+
+                        {catBloqueada ? (
+                          <View style={styles.badgeEsgotado}>
+                            <Text style={styles.badgeEsgotadoText}>BLOQUEADA</Text>
+                          </View>
+                        ) : semEstoque ? (
+                          <View style={styles.badgeEsgotado}>
+                            <Text style={styles.badgeEsgotadoText}>INDISPONÍVEL</Text>
+                          </View>
+                        ) : item.estoque !== null ? (
+                          <View style={styles.badgeEstoque}>
+                            <Text style={styles.badgeEstoqueText}>Restam {item.estoque}</Text>
+                          </View>
+                        ) : null}
+                      </View>
+
+                      <Text style={styles.productCatSub}>{item.categoriaNome}</Text>
+
+                      {alertaSaude && !catBloqueada && (
+                        <View style={styles.alertaSaudeTag}>
+                          <Ionicons name="warning" size={11} color="#BE123C" />
+                          <Text style={styles.alertaSaudeTagText}>Alerta Restrição</Text>
+                        </View>
+                      )}
+
+                      <Text
+                        style={[styles.productPrice, indisponivel && styles.productPriceEsgotado]}
+                      >
+                        {formatarMoeda(item.preco)}
+                      </Text>
+                    </View>
+
+                    {/* Ação */}
+                    {catBloqueada ? (
+                      <View style={styles.btnIndisponivel}>
+                        <Text style={styles.btnIndisponivelText}>Bloqueada</Text>
+                      </View>
+                    ) : semEstoque ? (
+                      <View style={styles.btnIndisponivel}>
+                        <Text style={styles.btnIndisponivelText}>Sem Estoque</Text>
+                      </View>
+                    ) : quantidade > 0 ? (
+                      <View style={styles.qtyControls}>
+                        <TouchableOpacity
+                          style={styles.qtyBtn}
+                          onPress={() => handleRemoverItem(item.id)}
+                        >
+                          <Ionicons name="remove" size={16} color="#1E62D0" />
+                        </TouchableOpacity>
+
+                        <Text style={styles.qtyText}>{quantidade}</Text>
+
+                        <TouchableOpacity
+                          style={styles.qtyBtn}
+                          onPress={() => handleAdicionarItem(item)}
+                        >
+                          <Ionicons name="add" size={16} color="#1E62D0" />
+                        </TouchableOpacity>
+                      </View>
+                    ) : (
+                      <TouchableOpacity
+                        style={styles.addCtaBtn}
+                        onPress={() => handleAdicionarItem(item)}
+                        activeOpacity={0.85}
+                      >
+                        <Ionicons name="add" size={16} color="#FFFFFF" />
+                        <Text style={styles.addCtaText}>Adicionar</Text>
+                      </TouchableOpacity>
+                    )}
+                  </View>
+                )
+              })}
+            </View>
+          ) : (
+            <View style={styles.emptyBox}>
+              <View style={styles.emptyIconCircle}>
+                <Ionicons name="fast-food-outline" size={36} color="#1E62D0" />
               </View>
-              {formaPagamento === 'pix' && (
-                <Ionicons name="checkmark-circle" size={20} color="#2563EB" />
-              )}
-            </TouchableOpacity>
+              <Text style={styles.emptyTitle}>Nenhum produto encontrado</Text>
+              <Text style={styles.emptySub}>
+                Nenhum item encontrado no cardápio para este filtro.
+              </Text>
+            </View>
+          )}
+        </ScrollView>
+
+        {/* BARRA FLUTUANTE DO CARRINHO */}
+        {carrinho.length > 0 && (
+          <View style={styles.floatingCartBar}>
+            <View>
+              <Text style={styles.cartBarCount}>
+                {quantidadeTotal} {quantidadeTotal === 1 ? 'item' : 'itens'} •{' '}
+                {alunoSelecionado?.nome.split(' ')[0] || ''}
+              </Text>
+              <Text style={styles.cartBarTotal}>{formatarMoeda(valorTotalCarrinho)}</Text>
+            </View>
 
             <TouchableOpacity
-              style={[
-                styles.paymentOptionCard,
-                (formaPagamento === 'credito' || formaPagamento === 'debito') &&
-                  styles.paymentOptionCardSel,
-              ]}
-              onPress={() => setFormaPagamento('credito')}
+              style={styles.cartCheckoutBtn}
+              onPress={() => setModalCheckoutVisible(true)}
+              activeOpacity={0.85}
             >
-              <Ionicons name="card-outline" size={20} color="#9333EA" />
-              <View style={{ flex: 1 }}>
-                <Text style={styles.paymentOptionTitle}>Cartão de Crédito ou Débito</Text>
-                <Text style={styles.paymentOptionSub}>Pagamento online via cartão cadastrado</Text>
+              <Ionicons name="bag-check-outline" size={18} color="#FFFFFF" />
+              <Text style={styles.cartCheckoutBtnText}>RESUMO DO PEDIDO</Text>
+            </TouchableOpacity>
+          </View>
+        )}
+      </View>
+
+      {/* MODAL 1: RESUMO E CONFIRMAÇÃO DO PEDIDO (ESPELHO DO PORTAL WEB) */}
+      <Modal
+        visible={modalCheckoutVisible}
+        animationType="slide"
+        transparent
+        onRequestClose={() => {
+          if (!processandoPedido) setModalCheckoutVisible(false)
+        }}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContent}>
+            <View style={styles.modalHeader}>
+              <View>
+                <Text style={styles.modalTag}>
+                  {modalidade === 'agora'
+                    ? 'COMPRA DIRETA • HOJE'
+                    : `AGENDADO • ${formatarDataBR(dataRetirada)}`}
+                </Text>
+                <Text style={styles.modalTitle}>Resumo do Pedido</Text>
               </View>
-              {(formaPagamento === 'credito' || formaPagamento === 'debito') && (
-                <Ionicons name="checkmark-circle" size={20} color="#2563EB" />
-              )}
-            </TouchableOpacity>
+              <TouchableOpacity
+                style={styles.modalCloseIconBtn}
+                onPress={() => setModalCheckoutVisible(false)}
+              >
+                <Ionicons name="close" size={20} color="#475569" />
+              </TouchableOpacity>
+            </View>
 
-            <TouchableOpacity
-              style={[styles.payConfirmBtn, processandoPagamento && styles.payConfirmBtnDisabled]}
-              onPress={handleFinalizarPagamento}
-              disabled={processandoPagamento}
-            >
-              {processandoPagamento ? (
-                <ActivityIndicator color="#FFFFFF" size="small" />
-              ) : (
-                <Text style={styles.payConfirmBtnText}>CONFIRMAR E PAGAR</Text>
+            <ScrollView showsVerticalScrollIndicator={false}>
+              {/* Perfil Consumidor e Saldo */}
+              {alunoSelecionado && (
+                <View style={styles.checkoutConsumerBox}>
+                  <View>
+                    <Text style={styles.checkoutConsumerLabel}>CONSUMIDOR</Text>
+                    <Text style={styles.checkoutConsumerName}>{alunoSelecionado.nome}</Text>
+                  </View>
+                  <View style={{ alignItems: 'flex-end' }}>
+                    <Text style={styles.checkoutConsumerLabel}>SALDO DISPONÍVEL</Text>
+                    <Text style={styles.checkoutConsumerSaldo}>
+                      {formatarMoeda(alunoSelecionado.saldo)}
+                    </Text>
+                  </View>
+                </View>
               )}
-            </TouchableOpacity>
+
+              <Text style={styles.modalSectionLabel}>ITENS DO CARRINHO</Text>
+              <View style={styles.itemsBox}>
+                {carrinho.map((item) => (
+                  <View key={item.produto.id} style={styles.cartItemRow}>
+                    <View style={{ flex: 1, paddingRight: 8 }}>
+                      <Text style={styles.cartItemName}>
+                        <Text style={{ fontWeight: '800', color: '#1E62D0' }}>
+                          {item.quantidade}x{' '}
+                        </Text>
+                        {item.produto.nome}
+                      </Text>
+                    </View>
+
+                    <View style={styles.checkoutQtyRow}>
+                      <TouchableOpacity
+                        style={styles.checkoutQtyBtn}
+                        onPress={() => handleRemoverItem(item.produto.id)}
+                      >
+                        <Ionicons name="remove" size={14} color="#334155" />
+                      </TouchableOpacity>
+                      <Text style={styles.cartItemPrice}>
+                        {formatarMoeda(item.produto.preco * item.quantidade)}
+                      </Text>
+                      <TouchableOpacity
+                        style={styles.checkoutQtyBtn}
+                        onPress={() => handleAdicionarItem(item.produto)}
+                      >
+                        <Ionicons name="add" size={14} color="#334155" />
+                      </TouchableOpacity>
+                    </View>
+                  </View>
+                ))}
+              </View>
+
+              <Text style={styles.modalSectionLabel}>OBSERVAÇÃO (OPCIONAL)</Text>
+              <TextInput
+                style={styles.obsInput}
+                value={observacao}
+                onChangeText={setObservacao}
+                placeholder="Ex: Sem gelo, aquecer lanche..."
+                placeholderTextColor="#94A3B8"
+              />
+
+              <View style={styles.totalBoxRow}>
+                <Text style={styles.totalBoxLabel}>TOTAL DO PEDIDO</Text>
+                <Text style={styles.totalBoxValue}>{formatarMoeda(valorTotalCarrinho)}</Text>
+              </View>
+
+              <TouchableOpacity
+                style={[styles.payConfirmBtn, processandoPedido && styles.payConfirmBtnDisabled]}
+                onPress={handleFinalizarPedido}
+                disabled={processandoPedido}
+                activeOpacity={0.85}
+              >
+                {processandoPedido ? (
+                  <ActivityIndicator color="#FFFFFF" size="small" />
+                ) : (
+                  <Text style={styles.payConfirmBtnText}>CONFIRMAR PEDIDO</Text>
+                )}
+              </TouchableOpacity>
+            </ScrollView>
           </View>
         </View>
       </Modal>
 
-      {/* MODAL 2: AVISO SALDO INSUFICIENTE */}
-      <Modal visible={modalSaldoInsuficiente} animationType="fade" transparent>
-        <View style={styles.modalOverlay}>
-          <View style={[styles.modalContent, { alignItems: 'center', paddingVertical: 28 }]}>
+      {/* MODAL 2: SALDO INSUFICIENTE */}
+      <Modal
+        visible={modalSaldoInsuficiente}
+        animationType="fade"
+        transparent
+        onRequestClose={() => setModalSaldoInsuficiente(false)}
+      >
+        <View style={styles.modalOverlayCenter}>
+          <View style={[styles.modalCardCenter, { alignItems: 'center', paddingVertical: 28 }]}>
             <View style={styles.warningIconBadge}>
-              <Ionicons name="warning-outline" size={36} color="#EA580C" />
+              <Ionicons name="warning-outline" size={34} color="#F27835" />
             </View>
 
             <Text style={styles.warningTitle}>Saldo Insuficiente!</Text>
             <Text style={styles.warningSub}>
-              A carteira de <Text style={{ fontWeight: '800', color: '#0F172A' }}>{alunoSelecionado?.nome}</Text> possui{' '}
+              A carteira de{' '}
+              <Text style={{ fontWeight: '800', color: '#1E293B' }}>{alunoSelecionado?.nome}</Text>{' '}
+              possui{' '}
               <Text style={{ fontWeight: '800', color: '#E11D48' }}>
-                R$ {alunoSelecionado?.saldo.toFixed(2).replace('.', ',')}
+                {formatarMoeda(alunoSelecionado?.saldo || 0)}
               </Text>
-              , mas o valor da compra é de{' '}
+              , mas o valor do pedido é de{' '}
               <Text style={{ fontWeight: '800', color: '#16A34A' }}>
-                R$ {valorTotalCarrinho.toFixed(2).replace('.', ',')}
+                {formatarMoeda(valorTotalCarrinho)}
               </Text>
               .
             </Text>
 
-            <Text style={styles.rechargeQuestion}>Deseja realizar uma recarga de saldo agora?</Text>
+            <Text style={styles.rechargeQuestion}>
+              Deseja realizar uma recarga PIX agora?
+            </Text>
 
             <View style={styles.warningActionsRow}>
               <TouchableOpacity
@@ -652,10 +1211,10 @@ export default function PedidosScreen() {
               <TouchableOpacity
                 style={styles.rechargeWarningBtn}
                 onPress={handleIrParaRecarga}
-                activeOpacity={0.88}
+                activeOpacity={0.85}
               >
                 <Ionicons name="flash" size={16} color="#FFFFFF" />
-                <Text style={styles.rechargeWarningText}>FAZER RECARGA</Text>
+                <Text style={styles.rechargeWarningText}>RECARREGAR AGORA</Text>
               </TouchableOpacity>
             </View>
           </View>
@@ -663,20 +1222,26 @@ export default function PedidosScreen() {
       </Modal>
 
       {/* MODAL 3: SUCESSO */}
-      <Modal visible={sucessoModal} animationType="fade" transparent>
-        <View style={styles.modalOverlay}>
-          <View style={[styles.modalContent, { alignItems: 'center', paddingVertical: 32 }]}>
+      <Modal
+        visible={sucessoModal}
+        animationType="fade"
+        transparent
+        onRequestClose={() => setSucessoModal(false)}
+      >
+        <View style={styles.modalOverlayCenter}>
+          <View style={[styles.modalCardCenter, { alignItems: 'center', paddingVertical: 30 }]}>
             <Ionicons name="checkmark-circle" size={64} color="#16A34A" />
-            <Text style={styles.successTitle}>Pedido Pago com Sucesso!</Text>
+            <Text style={styles.successTitle}>Pedido Confirmado!</Text>
             <Text style={styles.successSub}>
-              O pedido foi enviado para a cantina escolar e estará disponível no Portal ADMIN instantaneamente.
+              Pedido enviado para a cantina e debitado da carteira selecionada.
             </Text>
 
             <TouchableOpacity
               style={styles.successCloseBtn}
               onPress={() => setSucessoModal(false)}
+              activeOpacity={0.85}
             >
-              <Text style={styles.successCloseBtnText}>VOLTAR À CANTINA</Text>
+              <Text style={styles.successCloseBtnText}>VOLTAR AO CARDÁPIO</Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -686,23 +1251,49 @@ export default function PedidosScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: {
+  screen: {
     flex: 1,
-    backgroundColor: '#F8FAFC',
-    paddingHorizontal: 20,
-    paddingTop: Platform.OS === 'web' ? 24 : 48,
+    backgroundColor: '#1E2B58',
   },
-  header: {
-    marginBottom: 16,
+  topHeader: {
+    backgroundColor: '#1E2B58',
+    paddingHorizontal: 20,
+    paddingBottom: 22,
+    position: 'relative',
+    overflow: 'hidden',
+  },
+  topAccentCircle: {
+    position: 'absolute',
+    right: -50,
+    top: -40,
+    width: 180,
+    height: 180,
+    borderRadius: 90,
+    backgroundColor: '#2853A4',
+    opacity: 0.45,
+  },
+  headerBadge: {
+    alignSelf: 'flex-start',
+    backgroundColor: '#F27835',
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderRadius: 999,
+    marginBottom: 8,
+  },
+  headerBadgeText: {
+    color: '#FFFFFF',
+    fontSize: 9,
+    fontWeight: '800',
+    letterSpacing: 0.7,
   },
   title: {
     fontSize: 22,
     fontWeight: '800',
-    color: '#0F172A',
+    color: '#FFFFFF',
   },
   subtitle: {
     fontSize: 12,
-    color: '#64748B',
+    color: '#CBD5E1',
     marginTop: 2,
   },
   searchWrapper: {
@@ -710,8 +1301,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     backgroundColor: '#FFFFFF',
     borderRadius: 14,
-    borderWidth: 1,
-    borderColor: '#E2E8F0',
     paddingHorizontal: 14,
     height: 46,
     marginTop: 14,
@@ -720,14 +1309,183 @@ const styles = StyleSheet.create({
   searchInput: {
     flex: 1,
     fontSize: 13,
-    color: '#0F172A',
+    color: '#1E293B',
+  },
+  bodyContainer: {
+    flex: 1,
+    backgroundColor: '#F8FAFC',
+    borderTopLeftRadius: 28,
+    borderTopRightRadius: 28,
+  },
+  configCard: {
+    backgroundColor: '#FFFFFF',
+    borderRadius: 20,
+    padding: 16,
+    borderWidth: 1,
+    borderColor: '#E2E8F0',
+    marginBottom: 14,
+  },
+  sectionMiniLabel: {
+    fontSize: 9,
+    fontWeight: '800',
+    color: '#64748B',
+    letterSpacing: 0.7,
+    marginBottom: 8,
+  },
+  modalidadeRow: {
+    flexDirection: 'row',
+    gap: 8,
+  },
+  modalidadeBtn: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 6,
+    paddingVertical: 11,
+    paddingHorizontal: 8,
+    borderRadius: 12,
+    backgroundColor: '#F8FAFC',
+    borderWidth: 1,
+    borderColor: '#E2E8F0',
+  },
+  modalidadeBtnActive: {
+    backgroundColor: '#1E62D0',
+    borderColor: '#1E62D0',
+  },
+  modalidadeBtnText: {
+    fontSize: 11,
+    fontWeight: '800',
+    color: '#334155',
+  },
+  modalidadeBtnTextActive: {
+    color: '#FFFFFF',
+  },
+  agendamentoBox: {
+    marginTop: 12,
+    paddingTop: 12,
+    borderTopWidth: 1,
+    borderTopColor: '#F1F5F9',
+  },
+  agendamentoQuickRow: {
+    flexDirection: 'row',
+    marginBottom: 8,
+  },
+  quickDateChip: {
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 999,
+    backgroundColor: '#EFF6FF',
+    borderWidth: 1,
+    borderColor: '#BFDBFE',
+  },
+  quickDateChipActive: {
+    backgroundColor: '#1E62D0',
+    borderColor: '#1E62D0',
+  },
+  quickDateChipText: {
+    fontSize: 11,
+    fontWeight: '700',
+    color: '#1E62D0',
+  },
+  quickDateChipTextActive: {
+    color: '#FFFFFF',
+  },
+  dateInput: {
+    height: 42,
+    backgroundColor: '#F8FAFC',
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: '#E2E8F0',
+    paddingHorizontal: 14,
+    fontSize: 13,
+    fontWeight: '700',
+    color: '#1E293B',
+  },
+  consumidorRow: {
+    flexDirection: 'row',
+    gap: 8,
+    paddingRight: 10,
+  },
+  consumidorChip: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    backgroundColor: '#F8FAFC',
+    borderRadius: 999,
+    paddingHorizontal: 14,
+    paddingVertical: 9,
+    borderWidth: 1,
+    borderColor: '#E2E8F0',
+  },
+  consumidorChipSel: {
+    backgroundColor: '#1E62D0',
+    borderColor: '#1E62D0',
+  },
+  consumidorChipText: {
+    fontSize: 12,
+    fontWeight: '700',
+    color: '#334155',
+  },
+  consumidorChipTextSel: {
+    color: '#FFFFFF',
+    fontWeight: '800',
+  },
+  semDependenteText: {
+    fontSize: 12,
+    color: '#94A3B8',
+    fontStyle: 'italic',
+  },
+  saldoZeroBanner: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
+    backgroundColor: '#FFFBEB',
+    borderWidth: 1,
+    borderColor: '#FDE68A',
+    borderRadius: 12,
+    padding: 10,
+    marginTop: 12,
+  },
+  saldoZeroText: {
+    fontSize: 11,
+    fontWeight: '700',
+    color: '#92400E',
+  },
+  saldoZeroBtn: {
+    backgroundColor: '#F27835',
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    borderRadius: 10,
+  },
+  saldoZeroBtnText: {
+    color: '#FFFFFF',
+    fontSize: 10,
+    fontWeight: '800',
+  },
+  regrasBanner: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    backgroundColor: '#FFF7ED',
+    borderWidth: 1,
+    borderColor: '#FED7AA',
+    borderRadius: 12,
+    padding: 10,
+    marginTop: 10,
+  },
+  regrasBannerText: {
+    flex: 1,
+    fontSize: 11,
+    fontWeight: '700',
+    color: '#9A3412',
   },
   catScrollView: {
-    marginBottom: 16,
+    marginBottom: 14,
   },
   catChip: {
     backgroundColor: '#FFFFFF',
-    borderRadius: 12,
+    borderRadius: 999,
     paddingHorizontal: 16,
     paddingVertical: 8,
     borderWidth: 1,
@@ -735,8 +1493,8 @@ const styles = StyleSheet.create({
     marginRight: 8,
   },
   catChipSelected: {
-    backgroundColor: '#2B6CB0',
-    borderColor: '#2B6CB0',
+    backgroundColor: '#1E62D0',
+    borderColor: '#1E62D0',
   },
   catChipText: {
     fontSize: 12,
@@ -751,35 +1509,60 @@ const styles = StyleSheet.create({
   },
   productCard: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
     alignItems: 'center',
     backgroundColor: '#FFFFFF',
-    borderRadius: 16,
-    padding: 16,
+    borderRadius: 18,
+    padding: 14,
     borderWidth: 1,
     borderColor: '#E2E8F0',
+    gap: 12,
   },
   productCardEsgotado: {
     backgroundColor: '#F1F5F9',
     borderColor: '#E2E8F0',
-    opacity: 0.8,
+    opacity: 0.85,
+  },
+  productCardAlertaSaude: {
+    backgroundColor: '#FFF1F2',
+    borderColor: '#FECDD3',
+  },
+  productImgBox: {
+    width: 60,
+    height: 60,
+    borderRadius: 14,
+    backgroundColor: '#F8FAFC',
+    borderWidth: 1,
+    borderColor: '#F1F5F9',
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 4,
+    overflow: 'hidden',
+  },
+  productImg: {
+    width: '100%',
+    height: '100%',
   },
   productInfo: {
     flex: 1,
-    paddingRight: 12,
   },
   productHeaderRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 8,
+    gap: 6,
+    flexWrap: 'wrap',
   },
   productName: {
     fontSize: 14,
     fontWeight: '800',
-    color: '#0F172A',
+    color: '#1E293B',
   },
   productNameEsgotado: {
     color: '#94A3B8',
+  },
+  productCatSub: {
+    fontSize: 11,
+    color: '#64748B',
+    marginTop: 2,
   },
   badgeEsgotado: {
     backgroundColor: '#FFE4E6',
@@ -791,43 +1574,61 @@ const styles = StyleSheet.create({
     fontSize: 9,
     fontWeight: '800',
     color: '#E11D48',
-    letterSpacing: 0.5,
   },
-  productDesc: {
-    fontSize: 11,
-    color: '#64748B',
-    marginTop: 2,
+  badgeEstoque: {
+    backgroundColor: '#FEF3C7',
+    borderRadius: 6,
+    paddingHorizontal: 6,
+    paddingVertical: 2,
   },
-  productDescEsgotado: {
-    color: '#CBD5E1',
+  badgeEstoqueText: {
+    fontSize: 9,
+    fontWeight: '800',
+    color: '#B45309',
+  },
+  alertaSaudeTag: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    alignSelf: 'flex-start',
+    gap: 4,
+    backgroundColor: '#FFE4E6',
+    paddingHorizontal: 7,
+    paddingVertical: 2,
+    borderRadius: 999,
+    marginTop: 4,
+  },
+  alertaSaudeTagText: {
+    fontSize: 9,
+    fontWeight: '800',
+    color: '#BE123C',
   },
   productPrice: {
-    fontSize: 14,
+    fontSize: 15,
     fontWeight: '900',
-    color: '#16A34A',
-    marginTop: 6,
+    color: '#1E62D0',
+    marginTop: 5,
   },
   productPriceEsgotado: {
     color: '#94A3B8',
   },
   btnIndisponivel: {
     backgroundColor: '#E2E8F0',
-    paddingHorizontal: 12,
+    paddingHorizontal: 11,
     paddingVertical: 8,
-    borderRadius: 10,
+    borderRadius: 999,
   },
   btnIndisponivelText: {
-    fontSize: 11,
+    fontSize: 10,
     fontWeight: '700',
-    color: '#94A3B8',
+    color: '#64748B',
   },
   addCtaBtn: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#2563EB',
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-    borderRadius: 10,
+    backgroundColor: '#1E62D0',
+    paddingHorizontal: 13,
+    paddingVertical: 9,
+    borderRadius: 999,
     gap: 4,
   },
   addCtaText: {
@@ -839,52 +1640,74 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: '#EFF6FF',
-    borderRadius: 10,
-    paddingHorizontal: 6,
-    paddingVertical: 4,
+    borderRadius: 999,
+    paddingHorizontal: 8,
+    paddingVertical: 5,
     gap: 8,
+    borderWidth: 1,
+    borderColor: '#BFDBFE',
   },
   qtyBtn: {
-    padding: 4,
+    padding: 3,
   },
   qtyText: {
     fontSize: 13,
     fontWeight: '800',
-    color: '#2563EB',
+    color: '#1E62D0',
   },
   emptyBox: {
     alignItems: 'center',
-    marginVertical: 40,
+    marginVertical: 30,
+    backgroundColor: '#FFFFFF',
+    borderRadius: 22,
+    padding: 32,
+    borderWidth: 1,
+    borderColor: '#E2E8F0',
+  },
+  emptyIconCircle: {
+    width: 64,
+    height: 64,
+    borderRadius: 32,
+    backgroundColor: '#EFF6FF',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: 12,
   },
   emptyTitle: {
-    fontSize: 13,
-    color: '#94A3B8',
-    marginTop: 8,
+    fontSize: 15,
+    fontWeight: '800',
+    color: '#1E293B',
+  },
+  emptySub: {
+    fontSize: 12,
+    color: '#64748B',
+    textAlign: 'center',
+    marginTop: 4,
   },
   floatingCartBar: {
     position: 'absolute',
-    bottom: 20,
-    left: 20,
-    right: 20,
-    backgroundColor: '#0F172A',
-    borderRadius: 16,
+    bottom: 16,
+    left: 16,
+    right: 16,
+    backgroundColor: '#1E2B58',
+    borderRadius: 20,
     padding: 14,
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    shadowColor: '#000',
+    shadowColor: '#0F172A',
     shadowOffset: { width: 0, height: 6 },
-    shadowOpacity: 0.3,
-    shadowRadius: 10,
+    shadowOpacity: 0.25,
+    shadowRadius: 12,
     elevation: 8,
   },
   cartBarCount: {
     fontSize: 10,
-    color: '#94A3B8',
+    color: '#BFDBFE',
     fontWeight: '700',
   },
   cartBarTotal: {
-    fontSize: 16,
+    fontSize: 17,
     fontWeight: '900',
     color: '#FFFFFF',
     marginTop: 1,
@@ -893,28 +1716,28 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: '#F27835',
-    paddingHorizontal: 14,
-    paddingVertical: 10,
-    borderRadius: 12,
+    paddingHorizontal: 16,
+    paddingVertical: 11,
+    borderRadius: 999,
     gap: 6,
   },
   cartCheckoutBtnText: {
     color: '#FFFFFF',
     fontSize: 11,
-    fontWeight: '900',
+    fontWeight: '800',
+    letterSpacing: 0.4,
   },
-
-  /* Modais */
   modalOverlay: {
     flex: 1,
-    backgroundColor: 'rgba(15, 23, 42, 0.5)',
-    justifyContent: 'center',
-    padding: 20,
+    backgroundColor: 'rgba(15, 23, 42, 0.55)',
+    justifyContent: 'flex-end',
   },
   modalContent: {
     backgroundColor: '#FFFFFF',
-    borderRadius: 20,
-    padding: 20,
+    borderTopLeftRadius: 28,
+    borderTopRightRadius: 28,
+    padding: 22,
+    maxHeight: '88%',
   },
   modalHeader: {
     flexDirection: 'row',
@@ -922,128 +1745,163 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginBottom: 14,
   },
-  modalTitle: {
-    fontSize: 18,
+  modalTag: {
+    fontSize: 10,
     fontWeight: '800',
-    color: '#0F172A',
+    color: '#F27835',
+    letterSpacing: 0.7,
+  },
+  modalTitle: {
+    fontSize: 19,
+    fontWeight: '800',
+    color: '#1E293B',
+  },
+  modalCloseIconBtn: {
+    width: 34,
+    height: 34,
+    borderRadius: 17,
+    backgroundColor: '#F1F5F9',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  checkoutConsumerBox: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    backgroundColor: '#EFF6FF',
+    borderWidth: 1,
+    borderColor: '#DBEAFE',
+    borderRadius: 14,
+    padding: 12,
+    marginBottom: 12,
+  },
+  checkoutConsumerLabel: {
+    fontSize: 9,
+    fontWeight: '800',
+    color: '#64748B',
+  },
+  checkoutConsumerName: {
+    fontSize: 13,
+    fontWeight: '800',
+    color: '#1E293B',
+    marginTop: 2,
+  },
+  checkoutConsumerSaldo: {
+    fontSize: 14,
+    fontWeight: '900',
+    color: '#1E62D0',
+    marginTop: 2,
   },
   modalSectionLabel: {
     fontSize: 10,
     fontWeight: '800',
-    color: '#475569',
+    color: '#64748B',
     marginBottom: 8,
-    marginTop: 6,
-    letterSpacing: 0.5,
+    marginTop: 8,
+    letterSpacing: 0.6,
   },
-  alunoSelectBox: {
-    marginBottom: 12,
-  },
-  alunoChipRow: {
-    flexDirection: 'row',
-    gap: 8,
-  },
-  alunoChip: {
+  itemsBox: {
     backgroundColor: '#F8FAFC',
-    borderRadius: 10,
+    borderRadius: 14,
     paddingHorizontal: 12,
-    paddingVertical: 6,
+    paddingVertical: 4,
     borderWidth: 1,
     borderColor: '#E2E8F0',
-  },
-  alunoChipSel: {
-    backgroundColor: '#EFF6FF',
-    borderColor: '#2563EB',
-  },
-  alunoChipText: {
-    fontSize: 11,
-    color: '#475569',
-    fontWeight: '700',
-  },
-  alunoChipTextSel: {
-    color: '#2563EB',
-    fontWeight: '800',
+    marginBottom: 10,
   },
   cartItemRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    paddingVertical: 6,
+    alignItems: 'center',
+    paddingVertical: 10,
     borderBottomWidth: 1,
-    borderBottomColor: '#F1F5F9',
+    borderBottomColor: '#E2E8F0',
   },
   cartItemName: {
-    fontSize: 12,
+    fontSize: 13,
     color: '#334155',
   },
+  checkoutQtyRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
+  checkoutQtyBtn: {
+    width: 26,
+    height: 26,
+    borderRadius: 8,
+    backgroundColor: '#FFFFFF',
+    borderWidth: 1,
+    borderColor: '#CBD5E1',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
   cartItemPrice: {
-    fontSize: 12,
-    fontWeight: '700',
-    color: '#0F172A',
+    fontSize: 13,
+    fontWeight: '800',
+    color: '#1E293B',
+  },
+  obsInput: {
+    height: 44,
+    backgroundColor: '#F8FAFC',
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: '#E2E8F0',
+    paddingHorizontal: 14,
+    fontSize: 13,
+    color: '#1E293B',
+    marginBottom: 12,
   },
   totalBoxRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    backgroundColor: '#F8FAFC',
-    borderRadius: 12,
-    padding: 12,
-    marginVertical: 10,
+    backgroundColor: '#F0FDF4',
+    borderRadius: 14,
+    padding: 14,
+    marginVertical: 8,
     borderWidth: 1,
-    borderColor: '#E2E8F0',
+    borderColor: '#BBF7D0',
   },
   totalBoxLabel: {
-    fontSize: 10,
+    fontSize: 11,
     fontWeight: '800',
-    color: '#64748B',
+    color: '#166534',
   },
   totalBoxValue: {
-    fontSize: 18,
+    fontSize: 19,
     fontWeight: '900',
     color: '#16A34A',
   },
-  paymentOptionCard: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#F8FAFC',
-    borderRadius: 12,
-    padding: 12,
-    borderWidth: 1,
-    borderColor: '#E2E8F0',
-    marginBottom: 8,
-    gap: 10,
-  },
-  paymentOptionCardSel: {
-    backgroundColor: '#EFF6FF',
-    borderColor: '#2563EB',
-  },
-  paymentOptionTitle: {
-    fontSize: 12,
-    fontWeight: '800',
-    color: '#0F172A',
-  },
-  paymentOptionSub: {
-    fontSize: 10,
-    color: '#64748B',
-    marginTop: 1,
-  },
   payConfirmBtn: {
-    height: 48,
-    backgroundColor: '#1E62D0',
-    borderRadius: 12,
+    height: 50,
+    backgroundColor: '#F27835',
+    borderRadius: 999,
     justifyContent: 'center',
     alignItems: 'center',
     marginTop: 12,
+    marginBottom: 10,
   },
   payConfirmBtnDisabled: {
     backgroundColor: '#94A3B8',
   },
   payConfirmBtnText: {
     color: '#FFFFFF',
-    fontSize: 12,
+    fontSize: 13,
     fontWeight: '800',
     letterSpacing: 0.6,
   },
-
-  /* Aviso Saldo Insuficiente */
+  modalOverlayCenter: {
+    flex: 1,
+    backgroundColor: 'rgba(15, 23, 42, 0.55)',
+    justifyContent: 'center',
+    padding: 20,
+  },
+  modalCardCenter: {
+    backgroundColor: '#FFFFFF',
+    borderRadius: 24,
+    padding: 22,
+  },
   warningIconBadge: {
     width: 60,
     height: 60,
@@ -1056,22 +1914,22 @@ const styles = StyleSheet.create({
   warningTitle: {
     fontSize: 18,
     fontWeight: '800',
-    color: '#EA580C',
+    color: '#F27835',
   },
   warningSub: {
-    fontSize: 12,
+    fontSize: 13,
     color: '#64748B',
     textAlign: 'center',
-    lineHeight: 18,
+    lineHeight: 19,
     marginTop: 6,
-    paddingHorizontal: 12,
+    paddingHorizontal: 10,
   },
   rechargeQuestion: {
-    fontSize: 12,
+    fontSize: 13,
     fontWeight: '800',
-    color: '#0F172A',
+    color: '#1E293B',
     marginTop: 12,
-    marginBottom: 16,
+    marginBottom: 18,
   },
   warningActionsRow: {
     flexDirection: 'row',
@@ -1080,21 +1938,21 @@ const styles = StyleSheet.create({
   },
   cancelWarningBtn: {
     flex: 1,
-    height: 44,
-    borderRadius: 12,
+    height: 46,
+    borderRadius: 999,
     backgroundColor: '#F1F5F9',
     justifyContent: 'center',
     alignItems: 'center',
   },
   cancelWarningText: {
-    fontSize: 11,
+    fontSize: 12,
     fontWeight: '800',
     color: '#64748B',
   },
   rechargeWarningBtn: {
     flex: 1.4,
-    height: 44,
-    borderRadius: 12,
+    height: 46,
+    borderRadius: 999,
     backgroundColor: '#F27835',
     flexDirection: 'row',
     justifyContent: 'center',
@@ -1102,36 +1960,37 @@ const styles = StyleSheet.create({
     gap: 6,
   },
   rechargeWarningText: {
-    fontSize: 11,
-    fontWeight: '900',
+    fontSize: 12,
+    fontWeight: '800',
     color: '#FFFFFF',
   },
-
-  /* Sucesso */
   successTitle: {
-    fontSize: 18,
+    fontSize: 19,
     fontWeight: '800',
-    color: '#0F172A',
+    color: '#1E293B',
     marginTop: 12,
   },
   successSub: {
-    fontSize: 12,
+    fontSize: 13,
     color: '#64748B',
     textAlign: 'center',
-    lineHeight: 18,
+    lineHeight: 19,
     marginTop: 6,
-    paddingHorizontal: 20,
+    paddingHorizontal: 16,
   },
   successCloseBtn: {
-    backgroundColor: '#2B6CB0',
-    paddingHorizontal: 24,
-    paddingVertical: 12,
-    borderRadius: 12,
+    backgroundColor: '#1E62D0',
+    paddingHorizontal: 26,
+    height: 46,
+    borderRadius: 999,
+    justifyContent: 'center',
+    alignItems: 'center',
     marginTop: 20,
   },
   successCloseBtnText: {
     color: '#FFFFFF',
     fontSize: 12,
     fontWeight: '800',
+    letterSpacing: 0.5,
   },
 })

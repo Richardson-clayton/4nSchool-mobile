@@ -12,32 +12,32 @@ export default function RootLayout() {
   const router = useRouter()
 
   useEffect(() => {
-    // 1. Obtém sessão inicial
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session)
+    let isMounted = true
+
+    supabase.auth
+      .getSession()
+      .then(({ data: { session: initialSession } }) => {
+        if (!isMounted) return
+        setSession(initialSession)
+        setIsLoading(false)
+      })
+      .catch(() => {
+        if (isMounted) setIsLoading(false)
+      })
+
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((_event, currentSession) => {
+      if (!isMounted) return
+      setSession(currentSession)
       setIsLoading(false)
     })
 
-    // 2. Escuta mudanças na autenticação do Supabase
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      (_event, session) => {
-        setSession(session)
-        setIsLoading(false)
-      }
-    )
-
-    // 3. Trata retorno do segundo plano via deep link (fournschool://)
     const handleDeepLink = (event: { url: string }) => {
       const parsed = Linking.parse(event.url)
-      
-      // Se a URL do esquema estiver vazia ou raiz (ex: fournschool:///), força o roteamento correto
       if (!parsed.path || parsed.path === '' || parsed.path === '/') {
-        supabase.auth.getSession().then(({ data: { session } }) => {
-          if (session) {
-            router.replace('/(tabs)' as any)
-          } else {
-            router.replace('/' as any)
-          }
+        supabase.auth.getSession().then(({ data: { session: activeSession } }) => {
+          router.replace((activeSession ? '/(tabs)' : '/') as any)
         })
       }
     }
@@ -45,6 +45,7 @@ export default function RootLayout() {
     const linkSubscription = Linking.addEventListener('url', handleDeepLink)
 
     return () => {
+      isMounted = false
       subscription.unsubscribe()
       linkSubscription.remove()
     }
@@ -65,7 +66,7 @@ export default function RootLayout() {
   if (isLoading) {
     return (
       <View style={styles.loadingContainer}>
-        <ActivityIndicator size="large" color="#2B6CB0" />
+        <ActivityIndicator size="large" color="#1E2B58" />
       </View>
     )
   }
@@ -73,6 +74,8 @@ export default function RootLayout() {
   return (
     <Stack screenOptions={{ headerShown: false, animation: 'fade' }}>
       <Stack.Screen name="index" options={{ headerShown: false }} />
+      <Stack.Screen name="cadastro" options={{ headerShown: false }} />
+      <Stack.Screen name="esqueci-senha" options={{ headerShown: false }} />
       <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
     </Stack>
   )
@@ -83,6 +86,6 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#F7FAFC',
+    backgroundColor: '#1E2B58',
   },
 })
